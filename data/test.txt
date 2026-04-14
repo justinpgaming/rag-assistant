@@ -1,0 +1,5 @@
+Redstone repeaters are used to delay signals.
+
+They can be set to different tick delays.
+
+Observers detect block updates and send redstone pulses.

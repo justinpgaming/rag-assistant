@@ -1,0 +1,8 @@
+{
+  "goals": [
+    "build secret door",
+    "build secret base"
+  ],
+  "decisions": [],
+  "system_state": {}
+}

@@ -1,0 +1,11 @@
+[
+  "Redstone repeaters are used to delay signals.\n\nThey can be set to different tick delays.\n\nObservers detect block updates and send redstone pulses.",
+  "",
+  "Redstone dust carries a signal up to 15 blocks.\n\nRedstone repeaters can extend the signal beyond 15 blocks and introduce delay.\n\nRepeaters have 4 delay settings, measured in redstone ticks.\n\nObservers detect block updates and emit a short redstone pulse.\n\nComparators can compare signal strength or read container contents.\n\nPistons can push and pull blocks when powered by redstone.\n\nSticky pistons pull blocks back when the signal is removed.",
+  "A piston is a component of reciprocating engines, reciprocating pumps, gas compressors, hydraulic cylinders and pneumatic cylinders, among other similar mechanisms. It is the moving component that is contained by a cylinder and is made gas-tight by piston rings.",
+  "In an engine, its purpose is to transfer force from expanding gas in the cylinder to the crankshaft via a piston rod and/or connecting rod.",
+  "In a pump, the function is reversed and force is transferred from the crankshaft to the piston for the purpose of compressing or ejecting the fluid in the cylinder. In some engines, the piston also acts as a valve by covering and uncovering ports in the cylinder.",
+  "A piston is a component of reciprocating engines, reciprocating pumps, gas compressors, hydraulic cylinders and pneumatic cylinders, among other similar mechanisms. It is the moving component that is contained by a cylinder and is made gas-tight by piston rings.",
+  "In an engine, its purpose is to transfer force from expanding gas in the cylinder to the crankshaft via a piston rod and/or connecting rod.",
+  "In a pump, the function is reversed and force is transferred from the crankshaft to the piston for the purpose of compressing or ejecting the fluid in the cylinder. In some engines, the piston also acts as a valve by covering and uncovering ports in the cylinder."
+]

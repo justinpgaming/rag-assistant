@@ -1,0 +1,13 @@
+Redstone dust carries a signal up to 15 blocks.
+
+Redstone repeaters can extend the signal beyond 15 blocks and introduce delay.
+
+Repeaters have 4 delay settings, measured in redstone ticks.
+
+Observers detect block updates and emit a short redstone pulse.
+
+Comparators can compare signal strength or read container contents.
+
+Pistons can push and pull blocks when powered by redstone.
+
+Sticky pistons pull blocks back when the signal is removed.

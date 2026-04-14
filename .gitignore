@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+
+# Data / generated files
+*.npy
+*.db
+
+# Audio
+*.wav
+
+# Optional: keep or remove depending on your preference
+# learned_knowledge.json
+# memory.json

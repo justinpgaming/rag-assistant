@@ -3,6 +3,37 @@ from llm import generate_answer
 from memory import load_memory, add_goal, add_decision
 from focus import handle_focus, set_task, get_task, add_to_queue, view_queue, pop_next_task
 from focus import complete_task
+from logger import log_event
+
+def build_prompt(query, chunks):
+    context = "\n\n".join([c["content"] for c in chunks])
+
+    prompt = f"""
+You are a precise and authoritative AI assistant.
+
+The user is technically skilled (plumbing, gasfitting, refrigeration).
+Respond in a clear, confident, and professional manner.
+
+Instructions:
+- Use the provided context as your primary source
+- Do NOT make up information
+- If unsure, say "I don't know"
+- Keep answers concise and structured
+- Prefer bullet points when helpful
+- Avoid unnecessary words or repetition
+- Be confident and direct in your explanations
+- You may include small amounts of general knowledge ONLY if it supports or clarifies the context
+- Do NOT introduce unrelated or overly niche details
+
+Context:
+{context}
+
+Question:
+{query}
+
+Answer (concise, clear, authoritative):
+"""
+    return prompt
 
 def main():
     print("🧠 Loading RAG system...")
@@ -104,11 +135,24 @@ def main():
         chunks = retrieve(query, database)
 
         # Generate answer using LLM (streaming)
+
+
+        # Build prompt
+        prompt = build_prompt(query, chunks)
+
+        # Generate answer
         print("\n🤖 Answer:\n")
 
-        for chunk in generate_answer(query, chunks, memory):
-            print(chunk, end="", flush=True)
+        response_text = ""
 
+        for chunk in generate_answer(prompt):
+            print(chunk, end="", flush=True)
+            response_text += chunk
+
+        print()
+
+        # Log EVERYTHING
+        log_event(query, chunks, response_text, prompt)
         print()  # final newline
 
 

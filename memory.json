@@ -1,7 +1,8 @@
 {
   "goals": [
     "build secret door",
-    "build secret base"
+    "build secret base",
+    "build hidden piston door"
   ],
   "decisions": [],
   "system_state": {}

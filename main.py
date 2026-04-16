@@ -1,43 +1,27 @@
+# =========================================
+# 🧠 RAG Assistant - Main Control Loop
+# =========================================
+
 from rag import load_data, retrieve
 from llm import generate_answer
 from memory import load_memory, add_goal, add_decision
-from focus import handle_focus, set_task, get_task, add_to_queue, view_queue, pop_next_task
-from focus import complete_task
+from focus import (
+    handle_focus, set_task, get_task,
+    add_to_queue, view_queue, pop_next_task,
+    set_mode, get_mode,
+    set_control_mode, get_control_mode,
+    complete_task
+)
 from logger import log_event
+from viewer import view_logs
+from prompt import build_prompt
 
-def build_prompt(query, chunks):
-    context = "\n\n".join([c["content"] for c in chunks])
+import time
 
-    prompt = f"""
-You are a precise and authoritative AI assistant.
-
-The user is technically skilled (plumbing, gasfitting, refrigeration).
-Respond in a clear, confident, and professional manner.
-
-Instructions:
-- Use the provided context as your primary source
-- Do NOT make up information
-- If unsure, say "I don't know"
-- Keep answers concise and structured
-- Prefer bullet points when helpful
-- Avoid unnecessary words or repetition
-- Be confident and direct in your explanations
-- You may include small amounts of general knowledge ONLY if it supports or clarifies the context
-- Do NOT introduce unrelated or overly niche details
-
-Context:
-{context}
-
-Question:
-{query}
-
-Answer (concise, clear, authoritative):
-"""
-    return prompt
 
 def main():
     print("🧠 Loading RAG system...")
-    
+
     try:
         database = load_data()
     except Exception as e:
@@ -46,12 +30,13 @@ def main():
 
     print(f"✅ Loaded {len(database)} chunks")
 
-    # Load memory
     memory = load_memory()
     print(f"🧠 Memory loaded: {len(memory['goals'])} goals, {len(memory['decisions'])} decisions")
 
     while True:
         query = input("\n> ")
+
+        is_command = query.strip().startswith("/")
 
         if query.lower() == "exit":
             break
@@ -73,6 +58,67 @@ def main():
             continue
 
         # -----------------------------
+        # OBSERVABILITY COMMANDS
+        # -----------------------------
+        if query.strip().lower() == "/view_last":
+            view_logs(1)
+            continue
+
+        if query.strip().lower().startswith("/view_logs"):
+            parts = query.strip().split()
+            n = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 5
+            view_logs(n)
+            continue
+
+        # -----------------------------
+        # MODE COMMANDS
+        # -----------------------------
+        if query.startswith("/set_mode "):
+            new_mode = query.replace("/set_mode ", "").strip()
+
+            if new_mode not in ["fast", "think", "tool"]:
+                print("⚠ Invalid mode. Use: fast, think, tool")
+                continue
+
+            set_mode(new_mode)
+            print(f"⚙ Thinking mode set to: {new_mode}")
+            continue
+
+        if query.strip().lower() == "/mode":
+            print(f"🧭 Current mode: {get_mode()}")
+            continue
+
+        if query.strip().lower() == "/control":
+            print(f"🧭 Control mode: {get_control_mode()}")
+            continue
+
+        if query.startswith("/set_control "):
+            new_mode = query.replace("/set_control ", "").strip()
+            set_control_mode(new_mode)
+            continue
+
+        # -----------------------------
+        # OVERRIDE COMMANDS
+        # -----------------------------
+        if query.startswith("/force_switch "):
+            new_task = query.replace("/force_switch ", "").strip()
+            set_task(new_task)
+            print(f"⚡ Forced switch to: {new_task}")
+            print("\n💡 Press Enter to run this task")
+
+            follow_up = input("> ").strip()
+            if follow_up == "":
+                query = new_task
+            else:
+                continue
+
+        if query.startswith("/force_queue "):
+            new_task = query.replace("/force_queue ", "").strip()
+            add_to_queue(new_task)
+            print(f"⚡ Forced into queue: {new_task}")
+            continue
+
+        # -----------------------------
         # QUEUE COMMANDS
         # -----------------------------
         if query == "/queue":
@@ -83,15 +129,14 @@ def main():
             pop_next_task()
             continue
 
-
         if query == "/complete":
             complete_task()
 
             current = get_task()
             if current:
                 print("\n💡 Press Enter to run this task")
-
                 follow_up = input("> ").strip()
+
                 if follow_up == "":
                     query = current
                 else:
@@ -99,14 +144,26 @@ def main():
             else:
                 continue
 
+        # -----------------------------
+        # COMMAND BYPASS
+        # -----------------------------
+        if is_command:
+            continue
 
         # -----------------------------
-        # FOCUS SYSTEM (GUIDED + QUEUE)
+        # FOCUS SYSTEM
         # -----------------------------
         allowed, new_task = handle_focus(query)
 
         if not allowed:
             current = get_task()
+            control_mode = get_control_mode()
+
+            if control_mode == "strict":
+                print("\n🚫 Strict mode active — new task blocked")
+                print(f"Current task: {current}")
+                print(f"Blocked task: {new_task}")
+                continue
 
             print("\n⚠ New task detected!")
             print(f"Current task: {current}")
@@ -121,39 +178,50 @@ def main():
             if choice == "2":
                 set_task(new_task)
                 print("🔁 Switched to new task")
-
             elif choice == "3":
                 add_to_queue(new_task)
                 print("🔒 Staying on current task")
                 continue
-
             else:
                 print("🔒 Staying on current task")
                 continue
 
-        # Retrieve relevant chunks
+        # -----------------------------
+        # CORE RAG FLOW
+        # -----------------------------
         chunks = retrieve(query, database)
-
-        # Generate answer using LLM (streaming)
-
-
-        # Build prompt
-        prompt = build_prompt(query, chunks)
-
-        # Generate answer
-        print("\n🤖 Answer:\n")
+        mode = get_mode()
+        prompt = build_prompt(query, chunks, mode)
 
         response_text = ""
+        start_time = time.time()
+
+        thinking_shown = False
+        answer_started = False
 
         for chunk in generate_answer(prompt):
+
+            # Show thinking only if needed
+            if (
+                mode != "fast"
+                and not thinking_shown
+                and not answer_started
+                and time.time() - start_time > 0.5
+            ):
+                print("\nThinking...\n")
+                thinking_shown = True
+
+            # Print header when first token arrives
+            if not answer_started:
+                print("\n🤖 Answer:\n")
+                answer_started = True
+
             print(chunk, end="", flush=True)
             response_text += chunk
 
         print()
 
-        # Log EVERYTHING
-        log_event(query, chunks, response_text, prompt)
-        print()  # final newline
+        log_event(query, chunks, prompt, response_text)
 
 
 if __name__ == "__main__":

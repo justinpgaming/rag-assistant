@@ -8,16 +8,12 @@ def generate_answer(prompt):
             json={
                 "model": "llama3",
                 "prompt": prompt,
-                "stream": True
-            },
-            stream=True
+                "stream": False
+            }
         )
 
-        for line in response.iter_lines():
-            if line:
-                data = json.loads(line.decode("utf-8"))
-                if "response" in data:
-                    yield data["response"]
+        data = response.json()
+        yield data.get("response", "")
 
     except Exception as e:
         yield f"\nError: {e}\n"

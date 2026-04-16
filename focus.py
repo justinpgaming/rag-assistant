@@ -1,8 +1,32 @@
+# =========================================
+# 🧠 FOCUS SYSTEM
+# =========================================
+# Handles:
+# - Task tracking
+# - Task similarity detection
+# - Focus enforcement (guided / strict)
+# - Task queue
+# - Mode systems (control + thinking)
+# =========================================
+
+
+# -----------------------------
+# GLOBAL STATE
+# -----------------------------
 current_task = None
 task_queue = []
 
+CONTROL_MODE = "guided"   # guided | strict
+THINKING_MODE = "fast"    # fast | think | tool
 
-STOP_WORDS = {"how", "do", "does", "what", "is", "are", "the", "a", "an", "work", "works"}
+
+# -----------------------------
+# TEXT PROCESSING
+# -----------------------------
+STOP_WORDS = {
+    "how", "do", "does", "what", "is", "are",
+    "the", "a", "an", "work", "works"
+}
 
 
 def normalize(text):
@@ -39,21 +63,34 @@ def detect_task(query):
     return query.strip().lower()
 
 
+# -----------------------------
+# FOCUS LOGIC
+# -----------------------------
 def handle_focus(query):
-    global current_task
+    current = get_task()
 
-    new_task = detect_task(query)
-
-    if current_task is None:
-        current_task = new_task
+    # No active task → set it
+    if not current:
+        set_task(query)
         return True, None
 
-    if is_similar(current_task, new_task):
+    new_task = query
+
+    # Similar → allow
+    if is_similar(current, new_task):
         return True, None
 
+    # STRICT mode → block
+    if get_control_mode() == "strict":
+        return False, new_task
+
+    # GUIDED mode → ask user
     return False, new_task
 
 
+# -----------------------------
+# TASK MANAGEMENT
+# -----------------------------
 def set_task(task):
     global current_task
     current_task = task
@@ -63,6 +100,9 @@ def get_task():
     return current_task
 
 
+# -----------------------------
+# QUEUE SYSTEM
+# -----------------------------
 def add_to_queue(task):
     global task_queue
 
@@ -108,3 +148,36 @@ def complete_task():
     else:
         current_task = None
         print("📭 No more tasks in queue")
+
+
+# -----------------------------
+# MODE SYSTEM (CONTROL)
+# -----------------------------
+def set_control_mode(mode):
+    global CONTROL_MODE
+
+    if mode in ["guided", "strict"]:
+        CONTROL_MODE = mode
+        print(f"🧭 Control mode set to: {CONTROL_MODE}")
+    else:
+        print("⚠ Invalid control mode (guided / strict)")
+
+
+def get_control_mode():
+    return CONTROL_MODE
+
+
+# -----------------------------
+# MODE SYSTEM (THINKING)
+# -----------------------------
+def set_mode(mode):
+    global THINKING_MODE
+
+    if mode in ["fast", "think", "tool"]:
+        THINKING_MODE = mode
+    else:
+        print("⚠ Invalid thinking mode (fast / think / tool)")
+
+
+def get_mode():
+    return THINKING_MODE

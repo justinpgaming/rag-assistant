@@ -1,56 +1,154 @@
-# 🧠 RAG Assistant Roadmap
+# ⚠️ ROADMAP RULE
 
-## 🔒 CURRENT FOCUS
-- [X] Push project to GitHub
-- [X] Add streaming responses
-- [X] Memory system stabilization
-- [X] Focus system (task locking + queue)
-- [ ] Logging (query, chunks, prompt)
- 
----
+Before making changes or discussing roadmap:
 
-## 🔥 HIGH PRIORITY (Next Phase)
+1. Confirm roadmap is up to date
+2. If not → update it first
+3. Do NOT continue until confirmed
 
----
+Purpose:
+Prevent loss of decisions and progress due to context switching.
 
-## ⚙️ MEDIUM PRIORITY
-- [ ] Mode system expansion (/fast, /think, /tool)
-- [ ] Improved ingestion (better chunking)
-- [ ] PDF ingestion pipeline
-- [ ] Metadata in chunks (source, page, section)
-- [ ] Smooth streaming output (character-level or throttled printing)
-- [ ] Command system (/add_goal, /add_decision, etc.)
-- [ ] visual clarity of command feedback
-- [ ] Focus mode switching (guided / strict)
+
+
+
+# 🧠 RAG Assistant – System Roadmap & State
 
 ---
 
-## 🧠 LEARNING SYSTEM IDEAS
-- [ ] Learn programming system
-- [ ] Learn Linux system
-- [ ] Guided learning workflows
+# 🎯 CORE VISION
+
+Build a fully offline, controlled AI assistant with:
+
+- Deterministic behavior
+- Task focus system
+- Mode-based reasoning control
+- Memory + retrieval (RAG)
+- Expandable architecture
 
 ---
 
-## 🎨 LOW PRIORITY / FUTURE
-- [ ] GUI interface
-- [ ] Avatar system
-- [ ] Voice system refinement
-- [ ] Playful / relaxed profile mode
+# 🏗 CURRENT ARCHITECTURE
+
+## Core Flow
+
+User Input → Command Handling → Focus System → Mode System → RAG → Prompt Builder → LLM → Logging
 
 ---
 
-## 🚫 PARKED (Do NOT implement yet)
-- [ ] Vector database (until needed)
-- [ ] External APIs (against system rules)
-- [ ] Frameworks (LangChain, etc.)
+# 🧠 SYSTEM COMPONENTS
+
+## 1. RAG System
+- Loads local data
+- Embeddings via sentence-transformers
+- Retrieves relevant chunks
+- Working correctly
 
 ---
 
-## 🧭 RULES
-- Only work on CURRENT FOCUS
-- New ideas go into roadmap, not immediate work
-- Complete > start new
-- Do NOT commit textbooks / codebooks to git
-- Store raw data outside repo or in ignored folders
-- Only processed/cleaned data may be version controlled
+## 2. Memory System
+- Stores goals + decisions
+- JSON-based persistence
+- Basic but functional
+
+---
+
+## 3. Focus System
+- Tracks current task
+- Detects task switching
+- Supports:
+  - strict mode
+  - guided mode
+  - queue system
+
+---
+
+## 4. Mode System (CRITICAL)
+
+### Modes:
+- fast
+- think
+- tool
+
+### Behavior:
+Mode is passed into prompt builder → changes LLM output behavior
+
+---
+
+## 5. Prompt System
+
+Moved from inline (main.py) → dedicated `prompt.py`
+
+### Key Decision:
+- FULL separation of prompt logic from main loop
+
+---
+
+## 6. LLM Integration
+
+- Uses local Ollama (`llama3`)
+- Streaming responses
+- Stable
+
+---
+
+## 7. Logging System
+
+- Logs interactions to `logs.jsonl`
+- Working
+
+---
+
+# 🔥 MAJOR DECISIONS MADE
+
+## ✅ Separation of Concerns
+
+- `main.py` = control + routing
+- `focus.py` = state logic
+- `prompt.py` = behavior control
+- `llm.py` = execution layer
+
+---
+
+## 🔒 Mode Behavior Rules (Core System Logic)
+
+### ⚡ FAST MODE
+
+- Goal: Immediate answer
+- Behavior:
+  - Minimal output
+  - No reasoning steps
+  - No breakdown
+
+---
+
+### 🧠 THINK MODE
+- Goal: Structured reasoning
+- Behavior:
+  - Step-by-step breakdown
+  - Clear logical flow
+  - No conversational filler
+
+---
+
+### 🛠 TOOL MODE
+- Goal: Action execution
+- Behavior:
+  - Outputs ONLY steps/actions
+  - No explanations unless required
+  - Deterministic and precise
+  - TOOL mode produces deterministic, step-by-step execution instructions
+  - TOOL mode ignores RAG context to prevent irrelevant influence
+  - TOOL mode prioritizes action over explanation
+
+---
+
+### 🔑 Key Rule
+
+Mode selection changes:
+- Prompt structure
+- Output format
+- Allowed behavior
+
+NOT just tone or style.
+

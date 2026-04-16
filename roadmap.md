@@ -152,3 +152,14 @@ Mode selection changes:
 
 NOT just tone or style.
 
+
+# 🧭 FUTURE LAYERS (Planned, Not Active)
+
+## 🖥 UI Layer (Future)
+
+- Command palette style interface (popup / dropdown)
+- NOT always visible
+- Triggered on demand (hotkey or button)
+- Displays available commands
+- Allows click-based execution instead of typing
+- Must use existing command system (no duplicated logic)

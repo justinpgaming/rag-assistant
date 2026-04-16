@@ -97,6 +97,16 @@ def main():
             set_control_mode(new_mode)
             continue
 
+        
+        # -----------------------------
+        # SYSTEM COMMANDS
+        # ----------------------------- 
+
+        if query.strip().lower() == "/restart":
+            print("\n🔄 Restarting assistant...\n")
+            break
+
+
         # -----------------------------
         # OVERRIDE COMMANDS
         # -----------------------------
@@ -225,4 +235,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()

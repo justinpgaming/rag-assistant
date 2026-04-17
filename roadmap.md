@@ -1,164 +1,198 @@
-# ⚠️ ROADMAP RULE
+⚠️ ROADMAP RULE
 
 Before making changes or discussing roadmap:
 
-1. Confirm roadmap is up to date
-2. If not → update it first
-3. Do NOT continue until confirmed
+Confirm roadmap is up to date
+If not → update it first
+Do NOT continue until confirmed
 
 Purpose:
-Prevent loss of decisions and progress due to context switching.
+Prevent loss of decisions and progress due to context switching
 
-
-
-
-# 🧠 RAG Assistant – System Roadmap & State
-
----
-
-# 🎯 CORE VISION
+🧠 RAG Assistant – System Roadmap & State
+🎯 CORE VISION
 
 Build a fully offline, controlled AI assistant with:
 
-- Deterministic behavior
-- Task focus system
-- Mode-based reasoning control
-- Memory + retrieval (RAG)
-- Expandable architecture
+Deterministic behavior
+Task focus system
+Mode-based reasoning control
+Memory + retrieval (RAG)
+Expandable architecture
+High reliability and controllability
+🏗 CURRENT ARCHITECTURE
+Core Flow
 
----
+User Input
+→ Command Handling
+→ Focus System
+→ Mode System
+→ (Conditional RAG)
+→ Prompt Builder
+→ LLM
+→ Logging
 
-# 🏗 CURRENT ARCHITECTURE
+🧠 SYSTEM COMPONENTS
+1. RAG System
+Loads local data
+Embeddings via sentence-transformers
+Retrieves relevant chunks
+Disabled in TOOL mode (intentional)
+Working correctly
+2. Memory System
+Stores goals + decisions
+JSON-based persistence
+Basic but functional
+3. Focus System
+Tracks current task
+Detects task switching
+Supports:
+strict mode
+guided mode
+queue system
+Working
+4. Mode System (CRITICAL)
+Modes:
+fast
+think
+tool
+Behavior:
 
-## Core Flow
-
-User Input → Command Handling → Focus System → Mode System → RAG → Prompt Builder → LLM → Logging
-
----
-
-# 🧠 SYSTEM COMPONENTS
-
-## 1. RAG System
-- Loads local data
-- Embeddings via sentence-transformers
-- Retrieves relevant chunks
-- Working correctly
-
----
-
-## 2. Memory System
-- Stores goals + decisions
-- JSON-based persistence
-- Basic but functional
-
----
-
-## 3. Focus System
-- Tracks current task
-- Detects task switching
-- Supports:
-  - strict mode
-  - guided mode
-  - queue system
-
----
-
-## 4. Mode System (CRITICAL)
-
-### Modes:
-- fast
-- think
-- tool
-
-### Behavior:
 Mode is passed into prompt builder → changes LLM output behavior
 
----
+5. Prompt System
+Fully separated into prompt.py
+Mode-driven behavior injection
+Supports task-type extension (in progress)
+6. LLM Integration
+Uses local Ollama (llama3)
+Streaming responses
+Stable
+7. Logging System
+Logs interactions to logs.jsonl
+Functional, basic structure
+🔥 MAJOR DECISIONS MADE
+✅ Separation of Concerns
+main.py = control + routing
+focus.py = state logic
+prompt.py = behavior control
+llm.py = execution layer
+🔒 Mode Behavior Rules (Core System Logic)
+⚡ FAST MODE
+Immediate answers
+Minimal output
+No reasoning
+🧠 THINK MODE
+Step-by-step reasoning
+Logical structure
+No filler
+🛠 TOOL MODE
+Deterministic step execution
+Output ONLY numbered steps
+No explanations
+No introductions
+No summaries
+No assumptions unless specified
+RAG is bypassed
+Prioritizes action over explanation
+🔑 Key Rule
 
-## 5. Prompt System
+Mode changes:
 
-Moved from inline (main.py) → dedicated `prompt.py`
+Prompt structure
+Output format
+Allowed behavior
 
-### Key Decision:
-- FULL separation of prompt logic from main loop
+NOT just tone
 
----
+🛡 RELIABILITY LAYER (NEW — HIGH PRIORITY)
+Purpose:
 
-## 6. LLM Integration
+Transform system from probabilistic → controlled + predictable
 
-- Uses local Ollama (`llama3`)
-- Streaming responses
-- Stable
+1. Output Validation Layer (CRITICAL)
+Function:
+Validate LLM output before display/logging
+Checks:
+Starts with 1.
+Contains multiple steps
+No forbidden phrases (e.g., "Here is", "Below is")
+No extra text outside steps
+Behavior:
+Reject invalid outputs
+Optionally retry generation
+2. Task Type Detection
+Function:
 
----
+Classify task before prompt building
 
-## 7. Logging System
+Types:
+development
+physical
+general (fallback)
+Purpose:
+Improve TOOL mode accuracy
+Enable prompt specialization
+3. Structured Logging Upgrade
+Add fields:
+mode
+task_type
+validation_result
+response_time
+Purpose:
+Debugging
+Behavior analysis
+Performance tracking
+4. Debug Control System
+Add:
+DEBUG = True
+Behavior:
+Toggle debug logs on/off
+Purpose:
+Clean output vs verbose debugging
+5. Safety Guards (System-Level)
+Add:
+Max step count limit
+Reject empty outputs
+Reject overly short outputs
+Purpose:
 
-- Logs interactions to `logs.jsonl`
-- Working
+Prevent broken or useless responses
 
----
+6. Retry Mechanism (Optional Enhancement)
+Behavior:
+Regenerate response if validation fails
+Limited attempts (e.g., 2–3)
+Purpose:
 
-# 🔥 MAJOR DECISIONS MADE
+Improve reliability without manual intervention
 
-## ✅ Separation of Concerns
+🧭 FUTURE LAYERS (Planned, Not Active)
+🖥 UI Layer
+Command palette interface
+Hotkey-triggered
+Click-based command execution
+Uses existing command system (no duplication)
+🧱 NEXT DEVELOPMENT PRIORITIES
+Output Validation Layer
+Task Type Detection
+Structured Logging Upgrade
+Debug Control System
+Safety Guards
+Retry Mechanism
+🧠 CURRENT STATE SUMMARY
 
-- `main.py` = control + routing
-- `focus.py` = state logic
-- `prompt.py` = behavior control
-- `llm.py` = execution layer
+System is now:
 
----
+Stable
+Modular
+Controllable
+Ready for reliability improvements
 
-## 🔒 Mode Behavior Rules (Core System Logic)
+Transitioning from:
 
-### ⚡ FAST MODE
+→ “working system”
 
-- Goal: Immediate answer
-- Behavior:
-  - Minimal output
-  - No reasoning steps
-  - No breakdown
+to:
 
----
-
-### 🧠 THINK MODE
-- Goal: Structured reasoning
-- Behavior:
-  - Step-by-step breakdown
-  - Clear logical flow
-  - No conversational filler
-
----
-
-### 🛠 TOOL MODE
-- Goal: Action execution
-- Behavior:
-- Only output steps
-- No explanations
-- Be deterministic
-- Must NOT assume any environment unless explicitly stated
-- If the task does not explicitly mention software, code, or a computer, assume it is a real-world physical task
-
----
-
-### 🔑 Key Rule
-
-Mode selection changes:
-- Prompt structure
-- Output format
-- Allowed behavior
-
-NOT just tone or style.
-
-
-# 🧭 FUTURE LAYERS (Planned, Not Active)
-
-## 🖥 UI Layer (Future)
-
-- Command palette style interface (popup / dropdown)
-- NOT always visible
-- Triggered on demand (hotkey or button)
-- Displays available commands
-- Allows click-based execution instead of typing
-- Must use existing command system (no duplicated logic)
+→ “controlled and predictable system”

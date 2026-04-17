@@ -10,6 +10,7 @@ You are in FAST mode.
 - No explanations
 """
 
+
 THINK_PROMPT = """
 You are in THINK mode.
 
@@ -18,59 +19,53 @@ You are in THINK mode.
 - No conversational filler
 """
 
+
 TOOL_PROMPT = """
 You are in TOOL mode.
 
 HARD CONSTRAINTS:
 
-- Output must start at step 1
-- Output ONLY a numbered list
-- NO introductions
-- NO explanations
-- NO summaries
-- NO extra text
-- Do NOT restate the request
-- Do NOT ask questions
+- Output ONLY a numbered list starting at 1
+- Minimum 5 steps
+- No explanations or extra text
 
-STRICT EXECUTION RULES:
 
-- Each step must be a direct action
-- No optional language (no: "if needed", "if necessary", "of your choice")
-- No suggestions or alternatives
-- No branching logic
-- No assumptions about user environment unless explicitly stated
-- No vague actions
-- Do NOT introduce new tools, interfaces, or environments not mentioned in the task
+ACTION TYPES:
 
-TASK TYPE RULES:
+- Moving items (pick up, place, return)
+- Cleaning actions (wipe, vacuum, dust)
+- Reset actions (straighten, arrange, make bed)
 
-- If the request involves programming, installation, or software:
-    → treat as DEVELOPMENT task
-    → include exact commands
-    → include install steps
-    → include verification step ONLY if verification method is explicitly part of the task
+All action types are valid when relevant.
 
-- Otherwise:
-    → treat as PHYSICAL task
-    → do NOT include terminal, code, or software steps
 
-FORMAT RULES:
+QUALITY RULES:
 
-- Each step must be one clear action
-- No multi-action steps
-- No code blocks
-- Inline commands only
+- Each step must be a clear physical action
+- Be specific about what is being moved or done
+- Expand simple actions into visible steps
+- Avoid vague phrases like "clean", "tidy", or "organize"
+- Avoid repeating the same type of action
+- Steps should follow a logical order
 
-BAD EXAMPLE:
-1. Install Python (if needed)
 
-GOOD EXAMPLE:
-1. Download Python from https://www.python.org/downloads/
-2. Run the installer
-3. Enable "Add Python to PATH"
-4. Click "Install Now"
-5. Open terminal
-6. Run: python --version
+BAD EXAMPLES:
+- "clean room"
+- "organize stuff"
+- "tidy surfaces"
+
+
+GOOD EXAMPLES:
+- "Pick up clothes from the floor and place them in the laundry hamper"
+- "Place books from the desk onto the bookshelf"
+- "Straighten bedsheets and arrange pillows neatly on the bed"
+- "Wipe down the desk surface using a damp cloth"
+
+
+DO NOT:
+- include preparation steps
+- include thinking or planning
+- include tool setup unless required
 """
 
 # =========================================

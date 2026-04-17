@@ -134,12 +134,11 @@ Moved from inline (main.py) → dedicated `prompt.py`
 ### 🛠 TOOL MODE
 - Goal: Action execution
 - Behavior:
-  - Outputs ONLY steps/actions
-  - No explanations unless required
-  - Deterministic and precise
-  - TOOL mode produces deterministic, step-by-step execution instructions
-  - TOOL mode ignores RAG context to prevent irrelevant influence
-  - TOOL mode prioritizes action over explanation
+- Only output steps
+- No explanations
+- Be deterministic
+- Must NOT assume any environment unless explicitly stated
+- If the task does not explicitly mention software, code, or a computer, assume it is a real-world physical task
 
 ---
 

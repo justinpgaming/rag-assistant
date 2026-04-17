@@ -1,8 +1,83 @@
 # =========================================
-# 🧠 Prompt Builder (Mode-Aware)
+# 🧠 PROMPT SYSTEM
 # =========================================
 
-def build_prompt(query, context, mode):
+FAST_PROMPT = """
+You are in FAST mode.
+
+- Give a direct, minimal answer
+- No reasoning steps
+- No explanations
+"""
+
+THINK_PROMPT = """
+You are in THINK mode.
+
+- Break the problem into steps
+- Show clear reasoning
+- No conversational filler
+"""
+
+TOOL_PROMPT = """
+You are in TOOL mode.
+
+HARD CONSTRAINTS:
+
+- Output must start at step 1
+- Output ONLY a numbered list
+- NO introductions
+- NO explanations
+- NO summaries
+- NO extra text
+- Do NOT restate the request
+- Do NOT ask questions
+
+STRICT EXECUTION RULES:
+
+- Each step must be a direct action
+- No optional language (no: "if needed", "if necessary", "of your choice")
+- No suggestions or alternatives
+- No branching logic
+- No assumptions about user environment unless explicitly stated
+- No vague actions
+- Do NOT introduce new tools, interfaces, or environments not mentioned in the task
+
+TASK TYPE RULES:
+
+- If the request involves programming, installation, or software:
+    → treat as DEVELOPMENT task
+    → include exact commands
+    → include install steps
+    → include verification step ONLY if verification method is explicitly part of the task
+
+- Otherwise:
+    → treat as PHYSICAL task
+    → do NOT include terminal, code, or software steps
+
+FORMAT RULES:
+
+- Each step must be one clear action
+- No multi-action steps
+- No code blocks
+- Inline commands only
+
+BAD EXAMPLE:
+1. Install Python (if needed)
+
+GOOD EXAMPLE:
+1. Download Python from https://www.python.org/downloads/
+2. Run the installer
+3. Enable "Add Python to PATH"
+4. Click "Install Now"
+5. Open terminal
+6. Run: python --version
+"""
+
+# =========================================
+# PROMPT BUILDER
+# =========================================
+
+def build_prompt(query, context, mode, task_type="general"):
     mode_map = {
         "fast": FAST_PROMPT,
         "think": THINK_PROMPT,
@@ -11,8 +86,28 @@ def build_prompt(query, context, mode):
 
     mode_instruction = mode_map.get(mode, "")
 
+    # -----------------------------
+    # DEV TASK BOOST
+    # -----------------------------
+    if mode == "tool" and task_type == "development":
+        mode_instruction += """
+
+Additional rules for development tasks:
+- The task is a software or programming setup task
+- Do NOT create example scripts unless explicitly requested
+- Focus on installation, configuration, and verification steps
+- Include exact commands where applicable
+- Include installation steps explicitly
+- Include verification steps (e.g., checking version)
+"""
+
+    # -----------------------------
+    # BASE PROMPT
+    # -----------------------------
     if mode == "tool":
         base = f"""
+Task Type: {task_type}
+
 User Query:
 {query}
 """
@@ -29,113 +124,4 @@ Instructions:
 - If context is unrelated, ignore it
 """
 
-    return base + "\n\n" + mode_instruction
-
-
-# =========================================
-# ⚡ FAST MODE
-# =========================================
-
-FAST_PROMPT = """
-You are in FAST mode.
-
-Goal:
-Provide a quick, direct answer.
-
-Rules:
-- Keep response SHORT
-- Answer immediately
-- No step-by-step reasoning
-- No long explanations
-- Prefer 1–3 sentences
-- Be clear and confident
-
-Output Format:
-1. Direct Answer
-"""
-
-
-# =========================================
-# 🧠 THINK MODE
-# =========================================
-
-THINK_PROMPT = """
-You are in THINK mode.
-
-Goal:
-Provide structured reasoning with strict clarity and control.
-
-Rules:
-- NO conversational filler (no "here's", no casual tone)
-- Be direct and structured
-- Break problem into clear steps
-- Each step must add value
-- Avoid repetition
-- Keep reasoning tight and efficient
-
-Output Format (STRICT):
-
-1. Direct Answer
-- One clear statement
-
-2. Breakdown
-- Step 1:
-- Step 2:
-- Step 3:
-
-3. Conclusion
-- One concise summary
-"""
-
-
-# =========================================
-# 🛠 TOOL MODE
-# =========================================
-
-TOOL_PROMPT = """
-You are in TOOL mode.
-
-System Context:
-The user is running a local Python-based RAG assistant.
-It is executed from a terminal using: python main.py
-
-Your job:
-Convert the user request into direct executable steps for THIS system.
-
-STRICT RULES:
-- Output ONLY a numbered list of steps
-- NO introductions
-- NO explanations
-- NO summaries
-- NO extra text
-- DO NOT mention TOOL mode
-- DO NOT restate the question
-- DO NOT ask questions
-- DO NOT refuse
-
-Behavior:
-- Assume the user is working in a terminal
-- Prefer concrete commands
-- Be specific to a Python CLI workflow
-
-Each step must:
-- Be a real action the user can take
-- Be explicit, complete, and exact. Do not omit or weaken steps.
-- Include environment setup steps if applicable (e.g., virtual environment activation)
-- Do NOT skip necessary setup steps
-- Assume the environment is NOT already prepared
-- Replace vague phrases (e.g., "follow prompts", "use the program") with exact actions
-- Include ALL steps from start to finish (setup → execution → interaction)
-- The first line MUST be step 1
-- Do NOT output any text before step 1
-- Do NOT include conditional phrases (e.g., "if applicable")
-- Do NOT generalize steps
-
-Example:
-
-1. Open terminal
-2. Navigate to project folder
-3. Activate virtual environment
-4. Run: python main.py
-5. Enter a query
-"""
+    return mode_instruction + base

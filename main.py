@@ -2,6 +2,8 @@
 # 🧠 RAG Assistant - Main Control Loop
 # =========================================
 
+print("🔥 THIS IS THE NEW VERSION 🔥")
+
 from rag import load_data, retrieve
 from llm import generate_answer
 from memory import load_memory, add_goal, add_decision
@@ -17,6 +19,7 @@ from viewer import view_logs
 from prompt import build_prompt
 
 import time
+import re
 
 
 def main():
@@ -34,12 +37,25 @@ def main():
     print(f"🧠 Memory loaded: {len(memory['goals'])} goals, {len(memory['decisions'])} decisions")
 
     while True:
-        query = input("\n> ")
+        query: str = input("\n> ")
+        print(f"DEBUG RAW INPUT: [{query}]")
+        print("DEBUG: start of loop")
+
+        mode = None
+        skip_bypass = False
+        is_tool_run = False
 
         is_command = query.strip().startswith("/")
 
-        if query.lower() == "exit":
-            break
+        # -----------------------------
+        # EXIT
+        # -----------------------------
+        if query.strip().lower() == "exit":
+            return "exit"
+
+        if query.strip().lower() == "/exit":
+            print("👋 Exiting assistant...")
+            return "exit"
 
         if not query.strip():
             continue
@@ -58,7 +74,7 @@ def main():
             continue
 
         # -----------------------------
-        # OBSERVABILITY COMMANDS
+        # OBSERVABILITY
         # -----------------------------
         if query.strip().lower() == "/view_last":
             view_logs(1)
@@ -97,67 +113,45 @@ def main():
             set_control_mode(new_mode)
             continue
 
-        
         # -----------------------------
         # SYSTEM COMMANDS
-        # ----------------------------- 
-
+        # -----------------------------
         if query.strip().lower() == "/restart":
             print("\n🔄 Restarting assistant...\n")
-            break
-
+            return "restart"
 
         # -----------------------------
-        # OVERRIDE COMMANDS
+        # /RUN (TOOL ENTRY POINT)
         # -----------------------------
-        if query.startswith("/force_switch "):
-            new_task = query.replace("/force_switch ", "").strip()
-            set_task(new_task)
-            print(f"⚡ Forced switch to: {new_task}")
-            print("\n💡 Press Enter to run this task")
+        print("DEBUG: reached /run check")
 
-            follow_up = input("> ").strip()
-            if follow_up == "":
-                query = new_task
-            else:
+        if query.strip().lower().startswith("/run "):
+            task = query.strip()[5:].strip()
+
+            if not task:
+                print("⚠ Provide a task to run")
                 continue
 
-        if query.startswith("/force_queue "):
-            new_task = query.replace("/force_queue ", "").strip()
-            add_to_queue(new_task)
-            print(f"⚡ Forced into queue: {new_task}")
-            continue
+            print(f"\n🛠 Running task: {task}\n")
 
-        # -----------------------------
-        # QUEUE COMMANDS
-        # -----------------------------
-        if query == "/queue":
-            view_queue()
-            continue
+            query = f"{task}\n\nConstraints:\n- Do not assume tools, terminal, or environment unless explicitly stated."
+            set_mode("tool")
+            mode = "tool"
+            skip_bypass = True
+            is_tool_run = True
 
-        if query == "/next":
-            pop_next_task()
-            continue
+            # 🔒 TOOL GUARD (IMMEDIATE)
+            vague_terms = {"thing", "things", "stuff", "it", "everything"}
+            words = set(re.findall(r"\b\w+\b", query.lower()))
 
-        if query == "/complete":
-            complete_task()
-
-            current = get_task()
-            if current:
-                print("\n💡 Press Enter to run this task")
-                follow_up = input("> ").strip()
-
-                if follow_up == "":
-                    query = current
-                else:
-                    continue
-            else:
+            if len(words) < 3 or words & vague_terms:
+                print("⚠ Task too vague. Please be more specific.")
                 continue
 
         # -----------------------------
         # COMMAND BYPASS
         # -----------------------------
-        if is_command:
+        if is_command and not skip_bypass:
             continue
 
         # -----------------------------
@@ -199,9 +193,26 @@ def main():
         # -----------------------------
         # CORE RAG FLOW
         # -----------------------------
-        chunks = retrieve(query, database)
-        mode = get_mode()
-        prompt = build_prompt(query, chunks, mode)
+        mode = mode or get_mode()
+
+        if mode == "tool":
+            chunks = []
+        else:
+            chunks = retrieve(query, database)
+
+        # -----------------------------
+        # TASK TYPE HINT (MINIMAL)
+        # -----------------------------
+        task_type = "general"
+
+        dev_keywords = {"python", "script", "code", "install", "package", "pip", "program"}
+
+        words = set(query.lower().split())
+
+        if words & dev_keywords:
+            task_type = "development"
+
+        prompt = build_prompt(query, chunks, mode, task_type=task_type)
 
         response_text = ""
         start_time = time.time()
@@ -211,7 +222,6 @@ def main():
 
         for chunk in generate_answer(prompt):
 
-            # Show thinking only if needed
             if (
                 mode != "fast"
                 and not thinking_shown
@@ -221,7 +231,6 @@ def main():
                 print("\nThinking...\n")
                 thinking_shown = True
 
-            # Print header when first token arrives
             if not answer_started:
                 print("\n🤖 Answer:\n")
                 answer_started = True
@@ -234,6 +243,32 @@ def main():
         log_event(query, chunks, prompt, response_text)
 
 
+        forbidden = ["terminal", "command prompt", "run:", "python --version"]
+
+        if mode == "tool":
+            lowered = response_text.lower()
+            if any(f in lowered for f in forbidden):
+                print("⚠ TOOL output violated constraints. Retrying...\n")
+
+                # Regenerate once with stronger constraint
+                query += "\n\nSTRICT: Do NOT include verification, terminal, or command usage."
+
+                chunks = []
+                prompt = build_prompt(query, chunks, mode)
+
+                response_text = ""
+                for chunk in generate_answer(prompt):
+                    print(chunk, end="", flush=True)
+                    response_text += chunk
+
+                print()
+
+
 if __name__ == "__main__":
     while True:
-        main()
+        result = main()
+
+        if result == "restart":
+            continue
+        elif result == "exit":
+            break

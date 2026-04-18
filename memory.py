@@ -4,36 +4,31 @@ import os
 MEMORY_FILE = "memory.json"
 
 def load_memory():
-    if not os.path.exists(MEMORY_FILE):
-        return {
-            "goals": [],
-            "decisions": [],
-            "ideas": [],
-            "tasks": [],
-            "system_state": {}
-        }
+    default_memory = {
+        "goals": [],
+        "decisions": [],
+        "ideas": [],
+        "tasks": [],
+        "system_state": {}
+    }
 
-
+    # If file doesn't exist → return fresh memory
     if not os.path.exists(MEMORY_FILE):
         return default_memory
 
     try:
         with open(MEMORY_FILE, "r") as f:
-            return json.load(f)
-    except Exception:
-        return {
-            "goals": [],
-            "decisions": [],
-            "system_state": {}
-        }
+            memory = json.load(f)
 
-
-        # 👇 Ensure all keys exist (VERY IMPORTANT)
+        # ✅ Ensure all keys exist (THIS is what you were missing)
         for key, value in default_memory.items():
             if key not in memory:
                 memory[key] = value
 
         return memory
+
+    except Exception:
+        return default_memory
 
 
 def save_memory(memory):

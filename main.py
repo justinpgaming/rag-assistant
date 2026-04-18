@@ -127,9 +127,13 @@ def main():
     print(f"✅ Loaded {len(database)} chunks")
 
     memory = load_memory()
+    save_memory(memory)
     print(
-        f"🧠 Memory loaded: {len(memory['goals'])} goals, {len(memory['decisions'])} decisions"
-    )
+        f"🧠 Memory loaded: "
+        f"{len(memory['goals'])} goals, "
+        f"{len(memory['decisions'])} decisions, "
+        f"{len(memory['ideas'])} ideas"
+)
 
     while True:
         query = input("\n> ").strip()
@@ -161,8 +165,27 @@ def main():
             continue
 
         if query.startswith("/add_idea "):
-    add_idea(memory, query.replace("/add_idea ", "").strip())
-    continue
+            idea = query[len("/add_idea "):].strip()
+            add_idea(memory, idea)
+            continue
+
+        if query == "/view_ideas":
+            if not memory["ideas"]:
+                print("📭 No ideas yet")
+            else:
+                print("\n💡 Ideas:")
+                for i, idea in enumerate(memory["ideas"], 1):
+                    print(f"{i}. {idea}")
+            continue
+
+        if query == "/view_tasks":
+            if not memory["tasks"]:
+                print("📭 No tasks yet")
+            else:
+                print("\n🧩 Tasks:")
+                for i, task in enumerate(memory["tasks"], 1):
+                    print(f"{i}. {task}")
+            continue
 
         # -----------------------------
         # OBSERVABILITY

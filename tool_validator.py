@@ -25,6 +25,15 @@ GENERIC_PHRASES = [
 ]
 
 
+FIX_GUIDE = {
+    "vague wording": "Replace vague phrases with specific objects and actions.",
+    "too short": "Expand the step to include a clear action and object.",
+    "weak verb": "Use a stronger, more direct action verb.",
+    "invalid action combination": "Change the tool or object so the action makes sense.",
+    "non-specific scope": "Remove words like 'any' or 'remaining' and be precise.",
+    "unnatural phrasing": "Rewrite using natural, simple wording.",
+}
+
 def validate_tool_output(text: str):
     lines = [line.strip() for line in text.split("\n") if line.strip()]
 
@@ -83,9 +92,12 @@ def step_parser(raw_output: str):
     return steps
 
 
-def validate_steps(steps):
+def validate_steps(steps, task_type=None):
     results = []
 
+    # -------------------------
+    # STEP VALIDATION (per step)
+    # -------------------------
     for step in steps:
         text = step["text"]
         words = text.lower().split()
@@ -93,10 +105,7 @@ def validate_steps(steps):
         valid = True
         reason = None
 
-        # -------------------------
         # RULES
-        # -------------------------
-
         if any(w in words for w in WEAK_VERBS):
             valid = False
             reason = "weak verb"
@@ -109,15 +118,31 @@ def validate_steps(steps):
             valid = False
             reason = "too short"
 
-        # -------------------------
-        # INVALID COMBINATIONS
-        # -------------------------
+        # VAGUE PHRASES
+        text_lower = text.lower()
 
+        VAGUE_PHRASES = [
+            "any remaining",
+            "any visible",
+            "misplaced items",
+            "correct locations",
+            "various items",
+        ]
+
+        if valid and any(p in text_lower for p in VAGUE_PHRASES):
+            valid = False
+            reason = "vague wording"
+
+        # INVALID COMBINATIONS
         INVALID_COMBINATIONS = [
             ("wipe", "trash"),
             ("wipe", "floor"),
             ("vacuum", "desk"),
             ("sweep", "desk"),
+            ("sweep", "counter"),
+            ("vacuum", "counter"),
+            ("vacuum", "table"),
+            ("sweep", "bed"),
         ]
 
         for verb, obj in INVALID_COMBINATIONS:
@@ -125,24 +150,80 @@ def validate_steps(steps):
                 valid = False
                 reason = f"invalid action combination: {verb} + {obj}"
 
-        # -------------------------
-        # SAVE RESULT (INSIDE LOOP)
-        # -------------------------
+        # UNNATURAL
+        UNNATURAL_PATTERNS = [
+            "edge of the",
+            "corner of the",
+            "onto the corner",
+            "onto the edge",
+        ]
 
-        results.append(
-            {
-                "index": step["index"],
-                "text": text,
-                "valid": valid,
-                "reason": reason,
-            }
-        )
+        if valid and any(p in text_lower for p in UNNATURAL_PATTERNS):
+            valid = False
+            reason = "unnatural phrasing"
+
+        # SUSPICIOUS
+        SUSPICIOUS_WORDS = [
+            "crumb-covered",
+            "specific brand",
+            "detailed description",
+        ]
+
+        if valid and any(w in text_lower for w in SUSPICIOUS_WORDS):
+            valid = False
+            reason = "hallucinated detail"
+
+        # OBJECT RELATIONS
+        INVALID_OBJECT_RELATIONS = [
+            ("clothes", "bookshelf"),
+            ("clothes", "shelf"),
+            ("dishes", "bed"),
+            ("books", "trash"),
+        ]
+
+        for obj, bad_target in INVALID_OBJECT_RELATIONS:
+            if obj in words and bad_target in words:
+                valid = False
+                reason = f"invalid object placement: {obj} -> {bad_target}"
+
+        # SAVE RESULT
+        results.append({
+            "index": step["index"],
+            "text": text,
+            "valid": valid,
+            "reason": reason,
+        })
+
+    # -------------------------
+    # SEQUENCE VALIDATION (after)
+    # -------------------------
+    REDUNDANT_PATTERNS = [
+        ("pile", "organized"),
+        ("neat pile", "organized"),
+    ]
+
+    for i in range(len(steps) - 1):
+        prev_text = steps[i]["text"].lower()
+        curr_text = steps[i + 1]["text"].lower()
+
+        for a, b in REDUNDANT_PATTERNS:
+            if a in prev_text and b in curr_text:
+                results[i + 1]["valid"] = False
+                results[i + 1]["reason"] = "redundant step"
 
     return results
 
 
+
 def build_correction_prompt(step_text: str, reason: str):
+    fix_instruction = FIX_GUIDE.get(reason, "Fix the step.")
+
     return f"""You are correcting a TOOL mode step.
+
+- Use natural, normal human phrasing
+- Do NOT over-specify unnecessary details
+- Do not place objects in unrealistic locations (e.g., clothes on a bookshelf)
+- Replace vague words with specific objects (e.g., "items" → "clothes", "papers", "dishes")
 
 STRICT RULES:
 
@@ -151,20 +232,26 @@ STRICT RULES:
 - Must be a physical action
 - Must use a strong verb: pick up, place, wipe, vacuum, sweep
 - Must include a specific object (clothes, desk, trash, carpet, etc.)
-- Must include a target or tool (into, onto, using, with)
+- Include a tool or target ONLY if it is natural and necessary
 
 DO NOT:
 - repeat other steps
 - combine multiple actions
 - invent new tasks
-- use vague phrases like "items", "things", "area"
+- use vague words: items, things, area, stuff
+- use vague phrases: misplaced items, correct locations, any remaining, various items
+- use incorrect tools for objects (e.g., sweeping a desk, vacuuming a table)
 
 Fix the issue: {reason}
+How to fix: {fix_instruction}
 
 Original step:
 "{step_text}"
-"""
 
+Rewrite the step clearly and specifically.
+
+Only output the corrected step.
+"""
 
 def correct_step(step_text: str, reason: str, llm_call_fn):
     prompt = build_correction_prompt(step_text, reason)
@@ -205,7 +292,7 @@ def apply_step_corrections(steps, validation_results, llm_call_fn):
         recheck = validate_steps([{"index": step["index"], "text": new_text}])[0]
 
         if not recheck["valid"]:
-            # fallback: keep original (controlled failure)
+            print(f"❌ Correction failed: {new_text} ({recheck['reason']})")
             corrected_steps.append(step["text"])
         else:
             corrected_steps.append(new_text)

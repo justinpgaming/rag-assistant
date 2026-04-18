@@ -10,10 +10,18 @@ VAGUE_WORDS = {
     "items",
     "area",
     "spaces",
-    "surface",
 }
 
-WEAK_VERBS = {"organize", "tidy", "clean", "fix", "handle", "manage"}
+WEAK_VERBS = {
+    "organize",
+    "tidy",
+    "clean",
+    "fix",
+    "handle",
+    "manage",
+    "arrange",
+    "straighten",
+}
 
 
 GENERIC_PHRASES = [
@@ -122,12 +130,15 @@ def validate_steps(steps, task_type=None):
         text_lower = text.lower()
 
         VAGUE_PHRASES = [
-            "any remaining",
-            "any visible",
-            "misplaced items",
-            "correct locations",
-            "various items",
-        ]
+    "any remaining",
+    "any visible",
+    "misplaced items",
+    "correct locations",
+    "various items",
+    "any other",
+    "such as",
+    "including",
+]
 
         if valid and any(p in text_lower for p in VAGUE_PHRASES):
             valid = False
@@ -147,6 +158,10 @@ def validate_steps(steps, task_type=None):
 
         for verb, obj in INVALID_COMBINATIONS:
             if verb in words and obj in words:
+                # allow valid spatial phrases like "around the desk"
+                if "around" in words or "near" in words:
+                    continue
+
                 valid = False
                 reason = f"invalid action combination: {verb} + {obj}"
 
@@ -215,6 +230,39 @@ def validate_steps(steps, task_type=None):
 
 
 
+def check_workflow(steps):
+    """
+    Detects logical issues between steps (does NOT modify them).
+    Returns list of warnings.
+    """
+
+    warnings = []
+
+    for i in range(len(steps) - 1):
+        current = steps[i]["text"].lower()
+        next_step = steps[i + 1]["text"].lower()
+
+        # -------------------------
+        # REDUNDANT ACTIONS
+        # -------------------------
+        if "pile" in current and "organize" in next_step:
+            warnings.append(f"Step {i+2}: may be redundant after piling items")
+
+        # -------------------------
+        # ORDER ISSUES
+        # -------------------------
+        if "clean" in current and "place" in next_step:
+            warnings.append(f"Step {i+2}: placing items after cleaning may be out of order")
+
+        # -------------------------
+        # INEFFICIENT SEQUENCE
+        # -------------------------
+        if "vacuum" in current and "pick up" in next_step:
+            warnings.append(f"Step {i+2}: picking up items after vacuuming is inefficient")
+
+    return warnings
+
+
 def build_correction_prompt(step_text: str, reason: str):
     fix_instruction = FIX_GUIDE.get(reason, "Fix the step.")
 
@@ -233,6 +281,8 @@ STRICT RULES:
 - Must use a strong verb: pick up, place, wipe, vacuum, sweep
 - Must include a specific object (clothes, desk, trash, carpet, etc.)
 - Include a tool or target ONLY if it is natural and necessary
+- Use the correct tool for the object (e.g., pick up papers, do not sweep or vacuum them)
+- Do NOT combine actions (only one verb per step)
 
 DO NOT:
 - repeat other steps

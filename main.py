@@ -23,6 +23,7 @@ from viewer import view_logs
 from prompt import build_prompt
 from tool_validator import (
     validate_tool_output,  # keep for now
+    check_workflow,
     step_parser,
     validate_steps,
     apply_step_corrections,
@@ -92,6 +93,8 @@ def run_tool_mode(query, chunks, task_type):
         results = validate_steps(steps, task_type)
         has_invalid = any(not r["valid"] for r in results)
 
+        workflow_warnings = check_workflow(steps)
+
         if not has_invalid:
             return response_text
 
@@ -108,6 +111,17 @@ def run_tool_mode(query, chunks, task_type):
         # REBUILD OUTPUT
         # -----------------------------
         response_text = rebuild_output(corrected_steps)
+
+        # -----------------------------
+        # WORKFLOW CHECK (FINAL OUTPUT)
+        # -----------------------------
+        final_steps = step_parser(response_text)
+        workflow_warnings = check_workflow(final_steps)
+
+        if workflow_warnings:
+            print("\n⚠ Workflow Warnings:")
+            for w in workflow_warnings:
+                print(f"- {w}")
 
         return response_text
 

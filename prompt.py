@@ -2,6 +2,8 @@
 # 🧠 PROMPT SYSTEM
 # =========================================
 
+from templates import TASK_TEMPLATES
+
 FAST_PROMPT = """
 You are in FAST mode.
 
@@ -15,13 +17,33 @@ THINK_PROMPT = """
 You are in THINK mode.
 
 - Break the problem into steps
-- Show clear reasoning
+- Show ear reasoning
 - No conversational filler
 """
 
 
 TOOL_PROMPT = """
 You are in TOOL mode.
+
+
+CRITICAL OUTPUT RULE:
+
+Your response MUST begin immediately with:
+1.
+
+- Do NOT output anything before "1."
+- Do NOT output any introduction, header, or explanation.
+- Do NOT include phrases like:
+  "Here is", "Below is", "Task list", or similar
+If you do, the output is invalid.
+
+ENVIRONMENT ASSUMPTIONS:
+
+- Assume a modern development environment
+- Assume required software is already installed unless explicitly stated
+- Focus only on actions relevant to the task
+- Avoid unnecessary system-level setup or installation steps
+- Do not include navigation or environment setup unless required
 
 HARD CONSTRAINTS:
 
@@ -47,12 +69,21 @@ QUALITY RULES:
 - Avoid vague phrases like "clean", "tidy", or "organize"
 - Avoid repeating the same type of action
 - Steps should follow a logical order
+- Only include sequencing language (e.g., "then", "after", "starting with") when the order is required for the task
+- NEVER use the word "clean" in any step
+- Replace "clean" with specific actions such as:
+  - sweep
+  - vacuum
+  - wipe
+  - scrub
 
 
 BAD EXAMPLES:
 - "clean room"
 - "organize stuff"
 - "tidy surfaces"
+- "Clean the floor"
+- "Clean the room"
 
 
 GOOD EXAMPLES:
@@ -60,6 +91,8 @@ GOOD EXAMPLES:
 - "Place books from the desk onto the bookshelf"
 - "Straighten bedsheets and arrange pillows neatly on the bed"
 - "Wipe down the desk surface using a damp cloth"
+- "Sweep the floor using a broom to collect dust"
+- "Vacuum the carpet to remove dirt"
 
 
 DO NOT:
@@ -72,13 +105,9 @@ DO NOT:
 # PROMPT BUILDER
 # =========================================
 
-def build_prompt(query, context, mode, task_type="general"):
-    mode_map = {
-        "fast": FAST_PROMPT,
-        "think": THINK_PROMPT,
-        "tool": TOOL_PROMPT
-    }
 
+def build_prompt(query, context, mode, task_type="general"):
+    mode_map = {"fast": FAST_PROMPT, "think": THINK_PROMPT, "tool": TOOL_PROMPT}
     mode_instruction = mode_map.get(mode, "")
 
     # -----------------------------
@@ -90,10 +119,8 @@ def build_prompt(query, context, mode, task_type="general"):
 Additional rules for development tasks:
 - The task is a software or programming setup task
 - Do NOT create example scripts unless explicitly requested
-- Focus on installation, configuration, and verification steps
-- Include exact commands where applicable
-- Include installation steps explicitly
-- Include verification steps (e.g., checking version)
+- Focus on project-level actions, not system installation
+- Do NOT install Python or system dependencies
 """
 
     # -----------------------------
@@ -119,4 +146,22 @@ Instructions:
 - If context is unrelated, ignore it
 """
 
-    return mode_instruction + base
+    # -----------------------------
+    # BUILD FINAL PROMPT
+    # -----------------------------
+    prompt = mode_instruction + base
+
+    # -----------------------------
+    # TEMPLATE INJECTION
+    # -----------------------------
+    template = TASK_TEMPLATES.get(task_type)
+
+    if template:
+        template_text = "\n".join(f"- {step}" for step in template)
+    else:
+        template_text = ""
+
+    if mode == "tool" and template_text:
+        prompt += f"\n\nTASK STRUCTURE:\nFollow this structure:\n{template_text}\n"
+
+    return prompt

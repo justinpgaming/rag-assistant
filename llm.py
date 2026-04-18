@@ -13,7 +13,9 @@ def generate_answer(prompt):
         )
 
         data = response.json()
-        yield data.get("response", "")
+        return data.get("response", "")
 
     except Exception as e:
-        yield f"\nError: {e}\n"
+        return f"\nError: {e}\n"
+
+

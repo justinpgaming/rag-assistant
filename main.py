@@ -9,77 +9,107 @@ from rag import load_data, retrieve
 from llm import generate_answer
 from memory import load_memory, add_goal, add_decision
 from focus import (
-    handle_focus, set_task, get_task,
+    handle_focus,
+    set_task,
+    get_task,
     add_to_queue,
-    set_mode, get_mode,
-    set_control_mode, get_control_mode,
+    set_mode,
+    get_mode,
+    set_control_mode,
+    get_control_mode,
 )
 from logger import log_event
 from viewer import view_logs
 from prompt import build_prompt
-from validator import is_valid_tool_output
+from tool_validator import (
+    validate_tool_output,  # keep for now
+    step_parser,
+    validate_steps,
+    apply_step_corrections,
+    rebuild_output,
+)
 
 import time
 import re
 
 
+def classify_task(query: str) -> str:
+    q = query.lower()
+
+    if any(k in q for k in ["clean", "room", "wash", "tidy"]):
+        return "cleaning"
+    elif any(
+        k in q for k in ["setup", "set up", "install", "configure", "environment"]
+    ):
+        return "setup"
+    elif any(k in q for k in ["python", "code", "script"]):
+        return "development"
+    else:
+        return "general"
+
+
 def stream_response(prompt, mode):
-    response_text = ""
     start_time = time.time()
 
-    thinking_shown = False
-    answer_started = False
+    if mode != "fast":
+        print("\nThinking...\n")
 
-    for chunk in generate_answer(prompt):
+    print("\n🤖 Answer:\n")
 
-        if (
-            mode != "fast"
-            and not thinking_shown
-            and not answer_started
-            and time.time() - start_time > 0.5
-        ):
-            print("\nThinking...\n")
-            thinking_shown = True
+    response_text = generate_answer(prompt)
 
-        if not answer_started:
-            print("\n🤖 Answer:\n")
-            answer_started = True
+    print(response_text)
 
-        print(chunk, end="", flush=True)
-        response_text += chunk
-
-    print()
     return response_text
 
 
 def run_tool_mode(query, chunks, task_type):
     attempts = 0
-    max_attempts = 2
+    max_attempts = 3
 
-    while attempts <= max_attempts:
+    while attempts < max_attempts:
         prompt = build_prompt(query, chunks, "tool", task_type=task_type)
         response_text = stream_response(prompt, "tool")
 
-        valid = is_valid_tool_output(response_text)
+        # -----------------------------
+        # STRUCTURE VALIDATION (GATE)
+        # -----------------------------
+        valid_structure, reason = validate_tool_output(response_text)
 
-        if valid:
+        if not valid_structure:
+            print(f"\n⚠ Structure invalid: {reason}")
+            print("⚠ Skipping correction (cannot safely parse)\n")
             return response_text
 
-        print("⚠ Invalid TOOL output. Retrying...\n")
+        # -----------------------------
+        # STEP PARSING
+        # -----------------------------
+        steps = step_parser(response_text)
 
-        query += """
+        # -----------------------------
+        # STEP VALIDATION
+        # -----------------------------
+        results = validate_steps(steps, task_type)
+        has_invalid = any(not r["valid"] for r in results)
 
-STRICT TOOL RULES (MANDATORY):
+        if not has_invalid:
+            return response_text
 
-- Output ONLY a numbered list
-- Minimum 5 steps
-- Each step must be a clear physical action
-- No vague steps like "clean room" or "organize"
-- No preparation steps
-- No tool setup unless explicitly required
-"""
+        # -----------------------------
+        # STEP CORRECTION
+        # -----------------------------
+        print("\n⚠ Invalid steps detected — applying corrections...\n")
 
-        attempts += 1
+        corrected_steps = apply_step_corrections(
+            steps, results, lambda p: generate_answer(p)
+        )
+
+        # -----------------------------
+        # REBUILD OUTPUT
+        # -----------------------------
+        response_text = rebuild_output(corrected_steps)
+
+        return response_text
 
     print("❌ Failed after retries")
     return response_text
@@ -97,7 +127,9 @@ def main():
     print(f"✅ Loaded {len(database)} chunks")
 
     memory = load_memory()
-    print(f"🧠 Memory loaded: {len(memory['goals'])} goals, {len(memory['decisions'])} decisions")
+    print(
+        f"🧠 Memory loaded: {len(memory['goals'])} goals, {len(memory['decisions'])} decisions"
+    )
 
     while True:
         query = input("\n> ").strip()
@@ -232,12 +264,10 @@ def main():
         else:
             chunks = retrieve(query, database)
 
-        # Task type hint
-        task_type = "general"
-        dev_keywords = {"python", "code", "install", "pip", "script"}
-
-        if set(query.lower().split()) & dev_keywords:
-            task_type = "development"
+        # -----------------------------
+        # TASK TYPE
+        # -----------------------------
+        task_type = classify_task(query)
 
         # -----------------------------
         # EXECUTION

@@ -7,7 +7,7 @@ print("🔥 CLEAN MAIN LOADED 🔥")
 
 from rag import load_data, retrieve
 from llm import generate_answer
-from memory import load_memory, add_goal, add_decision, add_idea
+from memory import load_memory, add_goal, add_decision, add_idea, save_memory
 from focus import (
     handle_focus,
     set_task,
@@ -165,8 +165,16 @@ def main():
             continue
 
         if query.startswith("/add_idea "):
-            idea = query[len("/add_idea "):].strip()
-            add_idea(memory, idea)
+            raw = query[len("/add_idea "):].strip()
+
+            # optional category syntax: idea | category
+            if "|" in raw:
+                idea, category = [x.strip() for x in raw.split("|", 1)]
+            else:
+                idea = raw
+                category = "general"
+
+            add_idea(memory, idea, category)
             continue
 
         if query == "/view_ideas":
@@ -175,7 +183,7 @@ def main():
             else:
                 print("\n💡 Ideas:")
                 for i, idea in enumerate(memory["ideas"], 1):
-                    print(f"{i}. {idea}")
+                    print(f"{i}. [{idea['category']}] {idea['text']}")
             continue
 
         if query == "/view_tasks":

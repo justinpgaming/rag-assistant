@@ -57,10 +57,21 @@ def add_decision(memory, decision):
         print("⚠️ Decision already exists")
 
 
-def add_idea(memory, idea):
-    if idea not in memory["ideas"]:
-        memory["ideas"].append(idea)
-        save_memory(memory)
-        print(f"💡 Idea added: {idea}")
-    else:
+def add_idea(memory, idea_text, category="general"):
+    from datetime import datetime
+
+    idea_entry = {
+        "text": idea_text,
+        "category": category,
+        "created_at": datetime.now().strftime("%Y-%m-%d"),
+    }
+
+    # prevent duplicates (by text)
+    if any(i["text"] == idea_text for i in memory["ideas"]):
         print("⚠️ Idea already exists")
+        return
+
+    memory["ideas"].append(idea_entry)
+    save_memory(memory)
+
+    print(f"💡 Idea added [{category}]: {idea_text}")

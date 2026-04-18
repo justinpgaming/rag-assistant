@@ -1,13 +1,13 @@
 {
-  "goals": [
-    "build secret door",
-    "build secret base",
-    "build hidden piston door"
-  ],
+  "goals": [],
   "decisions": [],
-  "system_state": {},
   "ideas": [
-    "test idea"
+    {
+      "text": "minecraft persistent assistant",
+      "category": "ai",
+      "created_at": "2026-04-18"
+    }
   ],
-  "tasks": []
+  "tasks": [],
+  "system_state": {}
 }

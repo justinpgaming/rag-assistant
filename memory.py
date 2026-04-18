@@ -8,8 +8,14 @@ def load_memory():
         return {
             "goals": [],
             "decisions": [],
+            "ideas": [],
+            "tasks": [],
             "system_state": {}
         }
+
+
+    if not os.path.exists(MEMORY_FILE):
+        return default_memory
 
     try:
         with open(MEMORY_FILE, "r") as f:
@@ -20,6 +26,14 @@ def load_memory():
             "decisions": [],
             "system_state": {}
         }
+
+
+        # 👇 Ensure all keys exist (VERY IMPORTANT)
+        for key, value in default_memory.items():
+            if key not in memory:
+                memory[key] = value
+
+        return memory
 
 
 def save_memory(memory):
@@ -46,3 +60,12 @@ def add_decision(memory, decision):
         print(f"✅ Decision added: {decision}")
     else:
         print("⚠️ Decision already exists")
+
+
+def add_idea(memory, idea):
+    if idea not in memory["ideas"]:
+        memory["ideas"].append(idea)
+        save_memory(memory)
+        print(f"💡 Idea added: {idea}")
+    else:
+        print("⚠️ Idea already exists")

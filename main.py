@@ -7,7 +7,7 @@ print("🔥 CLEAN MAIN LOADED 🔥")
 
 from rag import load_data, retrieve
 from llm import generate_answer
-from memory import load_memory, add_goal, add_decision
+from memory import load_memory, add_goal, add_decision, add_idea
 from focus import (
     handle_focus,
     set_task,
@@ -159,6 +159,10 @@ def main():
         if query.startswith("/add_decision "):
             add_decision(memory, query.replace("/add_decision ", "").strip())
             continue
+
+        if query.startswith("/add_idea "):
+    add_idea(memory, query.replace("/add_idea ", "").strip())
+    continue
 
         # -----------------------------
         # OBSERVABILITY

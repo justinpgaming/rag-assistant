@@ -1,0 +1,49 @@
+{
+  "failures": [],
+  "patterns": {
+    "weak_verb": {
+      "attempts": 2,
+      "success": 2,
+      "score": 1.0
+    },
+    "too_short": {
+      "attempts": 1,
+      "success": 1,
+      "score": 1.0
+    }
+  },
+  "successes": [],
+  "corrections": [
+    {
+      "original_step": "Clean the desk.",
+      "failure_reason": "weak verb",
+      "attempted_fix": "Wipe the desk surface using a cloth.",
+      "accepted": true,
+      "pattern": "weak_verb",
+      "task_type": "cleaning",
+      "score": 1
+    },
+    {
+      "original_step": "Arrange items neatly.",
+      "failure_reason": "weak verb",
+      "attempted_fix": "Wipe the desk surface using a cloth.",
+      "accepted": true,
+      "pattern": "weak_verb",
+      "task_type": "cleaning",
+      "score": 1
+    },
+    {
+      "original_step": "Vacuum the carpet thoroughly.",
+      "failure_reason": "too short",
+      "attempted_fix": "Wipe the desk surface using a cloth.",
+      "accepted": true,
+      "pattern": "too_short",
+      "task_type": "cleaning",
+      "score": 1
+    }
+  ],
+  "meta": {
+    "version": 1,
+    "last_updated": 1776653464.1980636
+  }
+}

@@ -29,7 +29,11 @@ from tool_validator import (
     apply_step_corrections,
     rebuild_output,
 )
-
+from memory_experience import (
+    load_experience_memory,
+    save_experience_memory,
+    update_memory_from_log,
+)
 import time
 import re
 
@@ -82,6 +86,9 @@ def run_tool_mode(query, chunks, task_type):
             print("⚠ Skipping correction (cannot safely parse)\n")
             return response_text
 
+        print("RAW OUTPUT:")
+        print(response_text)
+
         # -----------------------------
         # STEP PARSING
         # -----------------------------
@@ -91,8 +98,29 @@ def run_tool_mode(query, chunks, task_type):
         # STEP VALIDATION
         # -----------------------------
         results = validate_steps(steps, task_type)
+
+        print("DEBUG results:", results)
+        print("TYPE:", type(results))
+
         has_invalid = any(not r["valid"] for r in results)
 
+        # -----------------------------
+        # 🧠 MEMORY LOGGING (FIXED POSITION)
+        # -----------------------------
+        memory = load_experience_memory()
+
+        log = {"task_type": task_type, "validation": results}
+
+        memory = update_memory_from_log(log, memory)
+        save_experience_memory(memory)
+
+        print("\n🧠 MEMORY STATS")
+        print("Failures:", len(memory["failures"]))
+        print("Successes:", len(memory["successes"]))
+
+        # -----------------------------
+        # WORKFLOW CHECK
+        # -----------------------------
         workflow_warnings = check_workflow(steps)
 
         if not has_invalid:
@@ -113,9 +141,14 @@ def run_tool_mode(query, chunks, task_type):
         response_text = rebuild_output(corrected_steps)
 
         # -----------------------------
-        # WORKFLOW CHECK (FINAL OUTPUT)
+        # FINAL WORKFLOW CHECK
         # -----------------------------
         final_steps = step_parser(response_text)
+
+        print("\n--- FINAL STEPS FOR WORKFLOW ---")
+        for s in final_steps:
+            print(s)
+
         workflow_warnings = check_workflow(final_steps)
 
         if workflow_warnings:
@@ -124,9 +157,6 @@ def run_tool_mode(query, chunks, task_type):
                 print(f"- {w}")
 
         return response_text
-
-    print("❌ Failed after retries")
-    return response_text
 
 
 def main():
@@ -260,10 +290,13 @@ def main():
             vague_terms = {"thing", "things", "stuff", "it", "everything"}
             words = set(re.findall(r"\b\w+\b", task.lower()))
 
-            if len(words) < 3 or words & vague_terms:
-                print("⚠ Task too vague. Please be more specific.")
-                continue
+            has_vague = words & vague_terms
+            has_action = any(w in words for w in ["clean", "organize", "setup", "fix"])
+            has_object = len(words) >= 2
 
+            if has_vague or not (has_action and has_object):
+               print("⚠ Task too vague. Please be more specific.")
+               continue
             query = task
             set_mode("tool")
             mode = "tool"

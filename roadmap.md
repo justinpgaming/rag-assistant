@@ -1,325 +1,316 @@
-⚠️ ROADMAP RULE
+# 🧠 RAG Assistant Roadmap (Updated & Prioritized)
 
-Before making changes or discussing roadmap:
+---
 
-Confirm roadmap is up to date
-If not → update it first
-Do NOT continue until confirmed
+# 🎯 CORE PHILOSOPHY (ANCHOR)
 
-Purpose:
-Prevent loss of decisions and progress due to context switching
+Build **layered intelligence**, not one giant system.
 
-🧠 RAG Assistant – System Roadmap & State
+Each system must be:
 
-🎯 CORE VISION
+* Independent
+* Toggleable
+* Replaceable
 
+---
 
-Build a fully offline, controlled AI assistant with:
+# 📍 CURRENT STATE (YOU ARE HERE)
 
-Deterministic behavior
-Task focus system
-Mode-based reasoning control
-Memory + retrieval (RAG)
-Expandable architecture
-High reliability and controllability
+✅ Task generation (tool mode)
+✅ Step validation
+✅ Correction system
+✅ Experience memory (failures + successes)
+✅ Logging + feedback loop
 
+---
 
-🧩 SYSTEM IDENTITY
+# 🚧 PHASE 1 — STABILIZATION (NOW)
 
-This is a controlled, mode-driven AI assistant designed to prioritize:
-- deterministic behavior over creativity
-- structure over flexibility
-- reliability over novelty
+## 🔥 Priority: HIGH (finish this first)
 
-The system is not a general chatbot.
+### 1. Fix + stabilize memory_experience
 
-It is an execution-oriented assistant that:
-- interprets tasks
-- applies strict behavioral rules
-- produces controlled, validated outputs
+* [ ] Ensure failures + successes log correctly
+* [ ] Deduplication working
+* [ ] Garbage filtering working
+* [ ] Memory caps enforced
 
-🏗 CURRENT ARCHITECTURE
+---
 
-Core Flow
+### 2. Add structured learning entries (VERY IMPORTANT)
 
-User Input
-→ Command Handling
-→ Focus System
-→ Mode System
-→ (Conditional RAG)
-→ Prompt Builder
-→ LLM
-→ Logging
+Upgrade from:
 
-🧠 SYSTEM COMPONENTS
+```json
+{ "step": "...", "reason": "vague wording" }
+```
 
-1. RAG System
-Loads local data
-Embeddings via sentence-transformers
-Retrieves relevant chunks
-Disabled in TOOL mode (intentional)
-Working correctly
+To:
 
-2. Memory System
-Stores goals + decisions
-JSON-based persistence
-Basic but functional
+```json
+{
+  "step": "...",
+  "was_valid": false,
+  "failure_reason": "vague wording",
+  "corrected_step": "...",
+  "correction_reason": "...",
+  "score": null,
+  "task_type": "cleaning"
+}
+```
 
-3. Focus System
-Tracks current task
-Detects task switching
-Supports:
-strict mode
-guided mode
-queue system
-Working
+👉 This unlocks:
 
-4. Mode System (CRITICAL)
-Modes:
-fast
-think
-tool
-Behavior:
+* real learning
+* scoring later
+* pattern extraction
 
-Mode is passed into prompt builder → changes LLM output behavior
+---
 
+### 3. Fix correction system weaknesses
 
-5. Prompt System
-Fully separated into prompt.py
-Mode-driven behavior injection
-Supports task-type extension (in progress)
+* [ ] Stop accepting garbage corrections
+* [ ] Enforce valid starting verbs (your fix)
+* [ ] Strip explanation text from corrections
+* [ ] Only accept clean step outputs
 
-6. LLM Integration
-Uses local Ollama (llama3)
-Streaming responses
-Stable
+---
 
-7. Logging System
-Logs interactions to logs.jsonl
-Functional, basic structure
+### 4. Add scoring (00–99 system)
 
-🔥 MAJOR DECISIONS MADE
-
-✅ Separation of Concerns
-
-main.py = control + routing
-focus.py = state logic
-prompt.py = behavior control
-llm.py = execution layer
-
-
-🔒 Mode Behavior Rules (Core System Logic)
-
-Mode determines how the assistant thinks, responds, and formats output.
-Each mode enforces strict behavioral constraints.
-
-
-⚡ FAST MODE
-
-Immediate, minimal responses
-No reasoning steps
-No extra explanation
-Direct answer only
-
-🧠 THINK MODE
-
-Break problems into clear steps
-Show structured reasoning
-No conversational filler
-Focus on logic and clarity
-
-🛠 TOOL MODE
+Basic version:
 
-Output ONLY a numbered list starting at 1
-Minimum of 5 steps
-No explanations, introductions, or summaries
-No text outside the list
-RAG is disabled
-TOOL MODE – Behavior Constraints
-Each step must be a clear, physical action
-Use strong verbs:
-pick up, place, wipe, vacuum, sweep
-Do NOT use vague verbs:
-clean, organize, tidy
-TOOL MODE – Sequencing Rules
-Only include sequencing when order is required
-Avoid unnecessary ordering language
-Do not use “starting with”, “then”, etc. unless needed
-TOOL MODE – Validation Behavior
-Output is validated before being accepted
-Invalid outputs are rejected and retried
-Validation enforces:
-structure (numbered list)
-step clarity
-no forbidden verbs (e.g., "clean")
+* valid = +20
+* specific = +20
+* strong verb = +20
+* no redundancy = +20
+* task alignment = +20
 
+Store per step or per task.
 
-🔑 Key Rule
+---
 
-Mode changes:
+# 🚀 PHASE 2 — LEARNING INTELLIGENCE
 
-Prompt structure
-Output format
-Allowed behavior
+## 🔥 Priority: HIGH (next after stabilization)
 
-NOT just tone
+### 5. Pattern detection (lightweight first)
 
-🛡 RELIABILITY LAYER (NEW — HIGH PRIORITY)
-Purpose:
+* [ ] Count repeated failure reasons
+* [ ] Example:
 
-Transform system from probabilistic → controlled + predictable
+  * “weak verb” occurs 23 times → flag
 
-1. Output Validation Layer (CRITICAL)
-Function:
-Validate LLM output before display/logging
-Checks:
-Starts with 1.
-Contains multiple steps
-No forbidden phrases (e.g., "Here is", "Below is")
-No extra text outside steps
-Behavior:
-Reject invalid outputs
-Optionally retry generation
+Later:
 
-2. Task Type Detection
-Function:
+* auto-generate rules
 
-Classify task before prompt building
+---
 
-Types:
-development
-physical
-general (fallback)
-Purpose:
-Improve TOOL mode accuracy
-Enable prompt specialization
+### 6. Strategy memory
 
-3. Structured Logging Upgrade
+Store things like:
 
-Add fields:
-mode
-task_type
-validation_result
-response_time
-Purpose:
-Debugging
-Behavior analysis
-Performance tracking
+```json
+{
+  "task_type": "cleaning",
+  "strategy": "pickup before clean",
+  "score": 92
+}
+```
 
-4. Debug Control System
+---
 
-Add:
-DEBUG = True
-Behavior:
-Toggle debug logs on/off
-Purpose:
-Clean output vs verbose debugging
+### 7. Episode tracking (optional but powerful)
 
-5. Safety Guards (System-Level)
+```json
+{
+  "task": "clean desk",
+  "score": 78,
+  "failures": [...],
+  "timestamp": ...
+}
+```
 
-Add:
-Max step count limit
-Reject empty outputs
-Reject overly short outputs
-Purpose:
+---
 
-Prevent broken or useless responses
+# 🧠 PHASE 3 — MEMORY ARCHITECTURE EXPANSION
 
+## 🔥 Priority: MEDIUM (prepare now, integrate later)
 
-6. Retry Mechanism (Optional Enhancement)
+### 8. Create `memory_profile.json`
 
-Behavior:
-Regenerate response if validation fails
-Limited attempts (e.g., 2–3)
-Purpose:
+Structure:
 
-Improve reliability without manual intervention
+```json
+{
+  "user": {},
+  "system": {},
+  "behavior": {},
+  "meta": {}
+}
+```
 
-7. Step-Level Correction System (CRITICAL — NEXT EVOLUTION)
+Rules:
 
-Purpose:
-Replace full-response retries with targeted correction of invalid steps in TOOL mode.
+* manual or controlled writes only
+* no auto-logging
+* no mixing with experience memory
 
-Current Problem:
+---
 
-Entire response is regenerated when validation fails
-Causes inconsistency, randomness, and inefficiency
+### 9. Keep memory systems separate
 
-New Behavior:
+| Memory Type       | Purpose                  |
+| ----------------- | ------------------------ |
+| memory.json       | ideas / goals / planning |
+| memory_experience | learning                 |
+| memory_profile    | identity + preferences   |
 
-Validate each step individually
-Identify invalid steps only
-Rewrite ONLY those steps
-Preserve all valid steps
+---
 
-Core Requirements:
+# ⚙️ PHASE 4 — MODE ARCHITECTURE
 
-Step parsing system (split numbered steps)
-Per-step validation rules
-Correction prompt builder (focused rewrite)
-Reintegration of corrected steps into final output
+## 🔥 Priority: MEDIUM
 
-Benefits:
+### 10. Introduce mode system
 
-Increased determinism
-Reduced variability
-Faster correction cycles
-Higher output stability
+```python
+mode = "tool"        # current
+mode = "precision"   # future
+```
 
-Constraints:
+---
 
-Must remain simple and rule-based
-No re-generation of full response unless catastrophic failure
-Must integrate cleanly with existing validator
+### 11. Add mode config
 
+```python
+MODE_CONFIG = {
+    "tool": {
+        "validate": True,
+        "correct": True,
+        "use_memory": True,
+    },
+    "precision": {
+        "validate": False,
+        "correct": False,
+        "use_memory": False,
+    }
+}
+```
 
-🧭 FUTURE LAYERS (Planned, Not Active)
+---
 
-🖥 UI Layer
-Command palette interface
-Hotkey-triggered
-Click-based command execution
-Uses existing command system (no duplication)
+### 12. Refactor pipeline to respect mode
 
+```python
+if config["validate"]:
+    ...
+if config["correct"]:
+    ...
+```
 
-🚧 CURRENT DEVELOPMENT PHASE
+---
 
-Phase: Reliability Enforcement
+# 📚 PHASE 5 — PRECISION MODE (FUTURE)
 
-Focus:
-- Strengthening output validation
-- Reducing randomness in TOOL mode
-- Improving consistency of step execution
+## 🔥 Priority: LOW (do NOT build yet)
 
-Current Limitation:
-- System retries full outputs instead of correcting individual steps
+### 13. Exact retrieval system
 
-Next Evolution:
-- Step-level correction (surgical fixes instead of full regeneration)
+* no rewriting
+* no correction
+* no interpretation
 
-🧱 NEXT DEVELOPMENT PRIORITIES
+---
 
-Output Validation Layer
-Task Type Detection
-Structured Logging Upgrade
-Debug Control System
-Safety Guards
-Retry Mechanism
+### 14. Source-grounded chunks
 
+```json
+{
+  "text": "...",
+  "source": "book.pdf",
+  "page": 42,
+  "type": "code"
+}
+```
 
-🧠 CURRENT STATE SUMMARY
+---
 
-System is now:
+### 15. Output format
 
-Stable
-Modular
-Controllable
-Ready for reliability improvements
+```python
+# Source: X, page Y
+<exact content>
+```
 
-Transitioning from:
+---
 
-→ “working system”
+# 🧩 PHASE 6 — ADVANCED INTELLIGENCE (LATER)
 
-to:
+* adaptive prompting from memory
+* auto-rule generation
+* self-improving strategies
+* confidence scoring
+* long-term optimization
 
-→ “controlled and predictable system”
+---
+
+# 🧠 WHAT YOU ARE DOING NEXT (TONIGHT)
+
+## ✅ Focus ONLY on this:
+
+1. Finalize memory_experience structure upgrade
+2. Add:
+
+   * wrong
+   * reason
+   * corrected
+   * correction_reason
+3. Ensure clean logging from validator + correction
+4. (Optional) basic scoring
+
+---
+
+# ⚠️ WHAT NOT TO TOUCH YET
+
+❌ precision mode
+❌ profile memory integration
+❌ complex pattern AI
+❌ over-optimization
+
+---
+
+# 🧠 FINAL MENTAL MODEL
+
+You are building:
+
+1. **Generator** → produces actions
+2. **Judge** → validates
+3. **Fixer** → corrects
+4. **Memory** → learns
+5. **(Future) Retriever** → recalls exactly
+
+---
+
+# 🔥 SIMPLE PRIORITY STACK
+
+1. Stabilize ✔
+2. Learn ✔
+3. Structure ✔
+4. Expand ✔
+5. Specialize (later)
+
+---
+
+# 👍 END STATE VISION
+
+A system that:
+
+* improves every run
+* remembers failures
+* adapts strategies
+* personalizes to you
+* retrieves exact knowledge when needed
+
+---

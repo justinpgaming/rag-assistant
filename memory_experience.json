@@ -1,5 +1,31 @@
 {
-  "failures": [],
+  "failures": [
+    {
+      "step": "Straighten bedsheets and arrange pillows neatly on the bed.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange furniture and visible items in the room to be tidy and organized.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books from the floor onto the bookshelf.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items such as pillows on the bed and decorative objects on surfaces.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make sure everything is in its correct location and in working order.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    }
+  ],
   "patterns": {
     "weak_verb": {
       "attempts": 2,
@@ -12,7 +38,48 @@
       "score": 1.0
     }
   },
-  "successes": [],
+  "successes": [
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up books, magazines, and papers from the floor and return them to their correct locations.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including tables, chairs, and shelves.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust and debris.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dirt-accumulating particles.",
+      "task_type": "cleaning"
+    }
+  ],
   "corrections": [
     {
       "original_step": "Clean the desk.",
@@ -44,6 +111,6 @@
   ],
   "meta": {
     "version": 1,
-    "last_updated": 1776653464.1980636
+    "last_updated": 1776737811.174325
   }
 }

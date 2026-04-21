@@ -33,6 +33,7 @@ from memory_experience import (
     load_experience_memory,
     save_experience_memory,
     update_memory_from_log,
+    load_experience_memory,
 )
 import time
 import re
@@ -132,7 +133,7 @@ def run_tool_mode(query, chunks, task_type):
         print("\n⚠ Invalid steps detected — applying corrections...\n")
 
         corrected_steps = apply_step_corrections(
-            steps, results, lambda p: generate_answer(p)
+            steps, results, lambda p: generate_answer(p), experience_memory
         )
 
         # -----------------------------
@@ -177,7 +178,7 @@ def main():
         f"{len(memory['goals'])} goals, "
         f"{len(memory['decisions'])} decisions, "
         f"{len(memory['ideas'])} ideas"
-)
+    )
 
     while True:
         query = input("\n> ").strip()
@@ -209,7 +210,7 @@ def main():
             continue
 
         if query.startswith("/add_idea "):
-            raw = query[len("/add_idea "):].strip()
+            raw = query[len("/add_idea ") :].strip()
 
             # optional category syntax: idea | category
             if "|" in raw:
@@ -295,8 +296,8 @@ def main():
             has_object = len(words) >= 2
 
             if has_vague or not (has_action and has_object):
-               print("⚠ Task too vague. Please be more specific.")
-               continue
+                print("⚠ Task too vague. Please be more specific.")
+                continue
             query = task
             set_mode("tool")
             mode = "tool"

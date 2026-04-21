@@ -229,37 +229,14 @@ def check_workflow(steps):
     return warnings
 
 
-# -------------------------
-# CORRECTION SYSTEM
-# -------------------------
-
-
-def build_correction_prompt(step_text: str, reason: str):
-    return f"""
-Rewrite this step into a better, more specific action.
-
-STRICT RULES:
-- Start with a strong action verb (pick, place, wipe, vacuum, sweep, remove)
-- Use a specific object (no "items", "things", "stuff")
-- Be clear and physical (something a human can do)
-- Do NOT reuse weak verbs like: organize, tidy, straighten, arrange
-- Do NOT explain anything
-- Output ONE single improved step only
-
-Original step:
-{step_text}
-
-Reason it is bad:
-{reason}
-
-Improved step:
-"""
-
-
 def correct_step(
     step_text: str, reason: str, llm_call_fn, experience_memory, task_type=None
 ):
     prompt = build_correction_prompt(step_text, reason)
+
+    # -------------------------
+    # FIRST ATTEMPT
+    # -------------------------
     corrected = llm_call_fn(prompt)
 
     print("\n🔧 RAW CORRECTION:", corrected)
@@ -268,7 +245,36 @@ def correct_step(
         return step_text
 
     # -------------------------
+    # SCORE FIRST ATTEMPT
+    # -------------------------
+    score = evaluate_step(corrected, step_text)
+    print(f"📊 Score: {score}/100")
+
+    # -------------------------
+    # RETRY IF LOW SCORE
+    # -------------------------
+    if score < 70:
+        retry_prompt = (
+            prompt + f"\n\nYour previous attempt scored {score}/100.\n"
+            "Improve it. Make it more specific, more physical, and follow ALL rules strictly."
+        )
+
+        corrected_retry = llm_call_fn(retry_prompt)
+
+        print("\n🔁 RETRY CORRECTION:", corrected_retry)
+
+        if corrected_retry:
+            retry_score = evaluate_step(corrected_retry, step_text)
+            print(f"📊 Retry Score: {retry_score}/100")
+
+            # keep the better one
+            if retry_score > score:
+                corrected = corrected_retry
+                score = retry_score
+
+    # -------------------------
     # PREVENT GENERIC REUSE
+    # (your existing logic continues below)
     # -------------------------
 
     if "desk" in cleaned and "carpet" in step_text:
@@ -438,17 +444,54 @@ def apply_step_corrections(steps, validation_results, llm_call_fn, experience_me
     task_type = "cleaning"  # TEMP: or pass dynamically later
 
     for step, result in zip(steps, validation_results):
+        step_text = step["text"]
+
         if result["valid"]:
-            corrected.append(step["text"])
+            corrected.append(step_text)
             continue
 
+        # First correction attempt
         fixed = correct_step(
-            step["text"],
+            step_text,
             result["reason"],
             llm_call_fn,
             experience_memory,
             task_type=task_type,
         )
+
+        # Score the corrected step
+        score = evaluate_step(fixed, step_text)
+
+        # Retry ONCE if score is too low
+        if score < 70:
+            retry_prompt = (
+                f"Original step: {step_text}\n"
+                f"Issue: {result['reason']}\n\n"
+                f"Your previous correction was:\n{fixed}\n\n"
+                f"It scored {score}/100.\n"
+                f"Improve it. Return ONLY the corrected step."
+            )
+
+            improved = llm_call_fn(retry_prompt)
+
+            # Re-score after retry
+            retry_score = evaluate_step(improved, step_text)
+
+            # Use the better result
+            if retry_score >= score:
+                fixed = improved
+                score = retry_score
+
+        # (Optional but aligned with roadmap) log score
+        log_correction(
+            original_step=step_text,
+            failure_reason=result["reason"],
+            attempted_fix=fixed,
+            accepted=True,
+            pattern=result["reason"],
+            score=score,
+        )
+
         corrected.append(fixed)
 
     return corrected

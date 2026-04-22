@@ -24,6 +24,71 @@
       "step": "Make sure everything is in its correct location and in working order.",
       "reason": "vague wording",
       "task_type": "cleaning"
+    },
+    {
+      "step": "Return any other misplaced items to their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make sure all surfaces are dust-free and tidy.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Double-check the room for any remaining items out of place and adjust as needed.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books to bookshelf, CDs to CD rack, and papers to their respective files.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange any visible items, such as decorative objects or figurines, in their correct locations.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make sure all items are put away in their proper places, including clothing, toys, and accessories.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items on the bed, such as pillows and blankets.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Dust dresser and mirror using a soft cloth.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return shoes to their designated storage area.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place any remaining items back in their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up any books, papers, or other misplaced items from the floor and return them to their designated shelves or surfaces.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Gather any misplaced items from the floor and return them to their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items such as books and decorations.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
     }
   ],
   "patterns": {
@@ -78,6 +143,186 @@
     {
       "step": "Vacuum the carpet to remove dirt and dirt-accumulating particles.",
       "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room and dispose of it properly.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces, including furniture and walls, with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust and dirt.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto the bookshelf or return them to their original locations.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down desk surface using a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up books from the floor and return them to their bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces using a damp cloth, including nightstands, dresser, and desk.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up books from the floor and return them to the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth, including the nightstand, dresser, and desk.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet using the vacuum cleaner to remove dirt.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down nightstand surfaces using a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place shoes from the hallway into the shoe rack.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, starting with the desk then moving on to the dresser.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up shoes from the floor and place them by the door.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including the nightstand and dresser.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room, emptying wastebaskets and recycling bins.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, paying attention to areas around furniture and along baseboards.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust and dirt, then vacuum the carpet to remove dirt and debris.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, paying attention to furniture and knick-knacks.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust and dirt.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and debris.",
+      "task_type": "cleaning"
     }
   ],
   "corrections": [
@@ -111,6 +356,6 @@
   ],
   "meta": {
     "version": 1,
-    "last_updated": 1776737811.174325
+    "last_updated": 1776820807.2903464
   }
 }

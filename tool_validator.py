@@ -52,6 +52,80 @@ FIX_GUIDE = {
     "redundant object grouping": "Use a single clear object instead of listing similar ones.",
 }
 
+
+# -------------------------
+# CORRECTION PROMPT
+# -------------------------
+
+
+def build_correction_prompt(step_text: str, reason: str):
+    return f"""
+Rewrite this step into a better, more specific action.
+
+STRICT RULES:
+- Start with a strong action verb (pick, place, wipe, vacuum, sweep, remove)
+- Use a specific object (no "items", "things", "stuff")
+- Be clear and physical (something a human can do)
+- Do NOT reuse weak verbs like: organize, tidy, straighten, arrange
+- Do NOT explain anything
+- Output ONE single improved step only
+
+Original step:
+{step_text}
+
+Reason it is bad:
+{reason}
+
+Improved step:
+
+CRITICAL:
+
+Output ONLY the corrected step.
+Do NOT include:
+- explanations
+- labels like "Improved step"
+- any extra text
+
+If you include anything else, your answer is invalid.
+"""
+
+
+# -------------------------
+# STEP EVALUATION
+# -------------------------
+
+
+def evaluate_step(step, original_step):
+    score = 100
+
+    words = step.lower().strip().split()
+
+    VALID_STARTS = ("pick", "place", "wipe", "vacuum", "sweep", "remove")
+
+    # ❌ empty step
+    if not words:
+        return 0
+
+    # ❌ weak start
+    if words[0] not in VALID_STARTS:
+        score -= 30
+
+    # ❌ too short
+    if len(words) < 4:
+        score -= 25
+
+    # ❌ vague words
+    VAGUE_OBJECTS = ["things", "stuff", "items"]
+    if any(w in words for w in VAGUE_OBJECTS):
+        score -= 25
+
+    # ❌ missing period
+    if not step.endswith("."):
+        score -= 10
+
+    return max(0, min(100, score))
+
+
 # -------------------------
 # OUTPUT VALIDATION
 # -------------------------
@@ -245,11 +319,17 @@ def correct_step(
         return step_text
 
     # -------------------------
+    # CLEAN RAW OUTPUT (MUST BE AFTER CHECK)
+    # -------------------------
+    lines = [l.strip() for l in corrected.split("\n") if l.strip()]
+    cleaned = lines[-1] if lines else ""
+    lowered = cleaned.lower()
+
+    # -------------------------
     # SCORE FIRST ATTEMPT
     # -------------------------
-    score = evaluate_step(corrected, step_text)
+    score = evaluate_step(cleaned, step_text)
     print(f"📊 Score: {score}/100")
-
     # -------------------------
     # RETRY IF LOW SCORE
     # -------------------------
@@ -277,9 +357,6 @@ def correct_step(
     # (your existing logic continues below)
     # -------------------------
 
-    if "desk" in cleaned and "carpet" in step_text:
-        penalize
-
     if cleaned.lower() in [
         c["attempted_fix"].lower() for c in experience_memory.get("corrections", [])
     ]:
@@ -295,14 +372,6 @@ def correct_step(
         )
 
         return step_text
-
-    # -------------------------
-    # CLEAN RAW OUTPUT
-    # -------------------------
-    lines = [l.strip() for l in corrected.split("\n") if l.strip()]
-    cleaned = lines[-1] if lines else ""
-
-    lowered = cleaned.lower()
 
     # -------------------------
     # HARD FILTER
@@ -482,14 +551,14 @@ def apply_step_corrections(steps, validation_results, llm_call_fn, experience_me
                 fixed = improved
                 score = retry_score
 
-        # (Optional but aligned with roadmap) log score
+        # LOG (fixed)
         log_correction(
+            memory=experience_memory,
             original_step=step_text,
             failure_reason=result["reason"],
             attempted_fix=fixed,
             accepted=True,
-            pattern=result["reason"],
-            score=score,
+            task_type=task_type,
         )
 
         corrected.append(fixed)

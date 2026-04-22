@@ -10,6 +10,45 @@ ONE INTERFACE → ROUTES TO MULTIPLE SPECIALIZED SYSTEMS
 
 ---
 
+## 🧠 CORE CONTROL MODEL (CRITICAL)
+
+The system is NOT LLM-driven.
+
+It follows this rule:
+
+LLM → suggests output
+SYSTEM → validates, evaluates, and decides final output
+
+---
+
+### CONTROL FLOW
+
+```id="aa12bb"
+LLM output
+   ↓
+VALIDATION (hard rules)
+   ↓
+EVALUATION (scoring)
+   ↓
+CORRECTION (if needed)
+   ↓
+FINAL OUTPUT
+```
+
+---
+
+### 🔒 HARD RULE
+
+The LLM is NEVER trusted as final output.
+
+The system MUST:
+
+* reject invalid outputs
+* correct weak outputs
+* enforce all rules deterministically
+
+---
+
 ## 🧩 HIGH-LEVEL ARCHITECTURE
 
 ```
@@ -27,9 +66,51 @@ SYSTEM SYSTEM   SYSTEM
 
 ---
 
+
+## 🧠 MEMORY DEFINITIONS
+
+### Memory Types
+
+* memory.py → personal/user memory (goals, ideas, decisions) *(temporary name)*
+* memory_experience.py → system learning (failures, corrections)
+* memory_context.py → short-term task/session memory *(future)*
+* focus.py → system state (mode, active task, control flow) *(future: system_state.py)*(future)
+
+
 ## 🧠 SYSTEM DEFINITIONS
 
 ### 1. TOOL SYSTEM (CURRENT FOCUS)
+
+### 🧩 DOMAIN ABSTRACTION (IMPORTANT)
+
+The tool system is domain-agnostic.
+
+It operates as:
+
+ENGINE (fixed logic) + DOMAIN (rules + knowledge)
+
+---
+
+Examples of domains:
+
+* cleaning
+* development
+* minecraft (future)
+* other games (future)
+
+---
+
+### 🔒 RULE
+
+Domains MUST NOT modify core logic.
+
+They only provide:
+
+* allowed actions (verbs)
+* templates
+* vocabulary rules
+* knowledge (RAG)
+
 
 Purpose:
 

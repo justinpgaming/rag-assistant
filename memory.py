@@ -1,3 +1,24 @@
+#=========================================
+#🧠 PERSONAL MEMORY (USER MEMORY)
+#=========================================
+
+
+#Stores:
+#- goals
+#- ideas
+#- decisions
+
+
+#This is USER memory.
+#It is NOT:
+#- system state
+#- experience learning
+
+
+#Planned rename:
+#memory_user.py or memory_personal.py
+#=========================================
+
 import json
 import os
 

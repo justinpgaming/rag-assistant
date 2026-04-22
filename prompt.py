@@ -25,13 +25,18 @@ You are in THINK mode.
 TOOL_PROMPT = """
 You are in TOOL mode.
 
+FAILURE CONDITION:
+
+If your response contains ANY text before "1." your answer is invalid and will be rejected.
+
 
 CRITICAL OUTPUT RULE:
 
 Your response MUST begin immediately with:
 1.
 
-- Do NOT output anything before "1."
+- Output MUST start with "1." as the first character of the response
+- Any text before "1." will cause immediate rejection
 - Do NOT output any introduction, header, or explanation.
 - Do NOT include phrases like:
   "Here is", "Below is", "Task list", or similar

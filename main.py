@@ -83,9 +83,10 @@ def run_tool_mode(query, chunks, task_type):
         valid_structure, reason = validate_tool_output(response_text)
 
         if not valid_structure:
-            print(f"\n⚠ Structure invalid: {reason}")
-            print("⚠ Skipping correction (cannot safely parse)\n")
-            return response_text
+            print(f"\n❌ STRUCTURE FAILURE: {reason}")
+            print("❌ Output rejected — invalid tool format\n")
+
+            return "[ERROR] Invalid tool output structure"
 
         print("RAW OUTPUT:")
         print(response_text)
@@ -106,18 +107,18 @@ def run_tool_mode(query, chunks, task_type):
         has_invalid = any(not r["valid"] for r in results)
 
         # -----------------------------
-        # 🧠 MEMORY LOGGING (FIXED POSITION)
+        # 🧠 EXPERIENCE MEMORY LOGGING
         # -----------------------------
-        memory = load_experience_memory()
+        experience_memory = load_experience_memory()
 
         log = {"task_type": task_type, "validation": results}
 
-        memory = update_memory_from_log(log, memory)
-        save_experience_memory(memory)
+        experience_memory = update_memory_from_log(log, experience_memory)
+        save_experience_memory(experience_memory)
 
-        print("\n🧠 MEMORY STATS")
-        print("Failures:", len(memory["failures"]))
-        print("Successes:", len(memory["successes"]))
+        print("\n🧠 EXPERIENCE MEMORY STATS")
+        print("Failures:", len(experience_memory["failures"]))
+        print("Successes:", len(experience_memory["successes"]))
 
         # -----------------------------
         # WORKFLOW CHECK

@@ -1,36 +1,44 @@
-# 🧠 SYSTEM STATE
+# 📊 SYSTEM STATE
 
-## CURRENT PHASE
-Building evaluation system (NOT fully integrated)
+---
 
-## ACTIVE SYSTEMS
-- validate_steps() → ACTIVE (primary gate)
-- evaluate_step() → IN DEVELOPMENT
-- correction loop → ACTIVE (inside correct_step)
+## ✅ Completed
 
-## IMPORTANT RULES (DO NOT BREAK)
-- validate system still has final authority
-- evaluate system is being tested, not trusted yet
-- DO NOT merge validate + evaluate yet
-- DO NOT remove validation rules
+- Step parser
+- Step validator
+- Multi-action detection
+- Correction loop
+- Scoring system (basic)
+- Experience memory logging
 
-## CURRENT GOAL
-- Make evaluate + retry produce better outputs
-- Observe scoring behavior
-- Confirm retry improves quality
+---
 
-## KNOWN ISSUES
-- duplicate retry logic (fixing)
-- scoring vs validation misalignment
-- cleaning happens after scoring (needs fix)
+## ⚠️ In Progress
 
-## NEXT STEPS
-1. Fix correction loop structure
-2. Run real examples
-3. Observe scores
-4. Tune evaluate rules
+- Validation cleanup
+- Output consistency
+- Vague word refinement
 
-## DO NOT DO YET
-- Full refactor
-- Move all rules into evaluate
-- Remove validate system
+---
+
+## ❌ Not Started
+
+- Router system
+- Teach Mode
+- Fast Mode
+- Minecraft RAG database
+- Constraint modeling
+
+---
+
+## 🧠 Current Priority
+
+Stabilize Tool Mode before expanding system
+
+---
+
+## 🚫 Blockers
+
+- Validation conflicts
+- Correction instability
+- Over-rejection of valid steps

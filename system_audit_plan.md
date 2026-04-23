@@ -5,48 +5,74 @@ SYSTEM_ARCHITECTURE.md
 
 This audit focuses only on validation and verification rules.
 
-
-# 🧠 SYSTEM AUDIT PLAN (FUTURE)
-
-## PURPOSE
-
-Verify structure, control, and consistency across all files.
+# 🧪 SYSTEM AUDIT PLAN
 
 ---
 
-## CHECKLIST
+## 🎯 Purpose
 
-1. Ownership
-
-* each file has a single clear responsibility
-
-2. No duplication
-
-* validation rules centralized
-* correction logic centralized
-
-3. Pipeline integrity
-
-* no bypass paths
-* no early exits
-
-4. LLM control
-
-* system always decides final output
-
-5. Naming consistency
-
-* one name per concept
-
-6. File clarity
-
-* each file describable in one sentence
+Ensure system remains:
+- Stable
+- Consistent
+- Aligned with design rules
 
 ---
 
-## RULE
+## 🔍 What to Check
 
-Do NOT run this audit until:
+### Tool Mode
 
-* evaluate system is stable
-* correction loop is working reliably
+- All steps are single action
+- No "and" in steps
+- No vague objects
+- No logical instructions
+- Steps are physically executable
+
+---
+
+### Validator
+
+- No conflicting rules
+- No duplicate logic
+- Only hard validation (no scoring influence)
+
+---
+
+### Correction System
+
+- Improves step quality
+- Does not introduce worse outputs
+- Does not loop endlessly
+
+---
+
+### Scoring
+
+- Only compares quality
+- Never blocks valid steps
+
+---
+
+## ⚠️ Red Flags
+
+- Valid steps being rejected
+- Output becoming less natural
+- Increasing correction loops
+- Conflicting validation reasons
+
+---
+
+## 🔁 Audit Frequency
+
+- After major changes
+- After rule additions
+- Before expanding system
+
+---
+
+## ✅ Goal
+
+Keep system:
+- Predictable
+- Debuggable
+- Expandable

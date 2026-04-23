@@ -2,63 +2,115 @@
 
 ---
 
-
-## 📌 Next Steps (Short Term)
-- Add workflow awareness (detection only)
-- Improve vague wording corrections
+## 📌 Current Focus
+- Stabilize Tool Mode (step generation system)
+- Eliminate validation conflicts
+- Ensure consistent, minimal, executable steps
 
 ---
 
-## 💡 Ideas (Unstructured)
-- Minecraft persistent assistant mode
-- Gardening / permaculture planner AI
-- Solar system setup assistant
+## 🧱 System Direction (LOCKED)
+
+The system is a **modular agent with routing**:
+
+User → Router → Mode → Output
+
+Modes are:
+- Tool Mode (strict steps)
+- Teach Mode (guidance / coding help)
+- Fast Mode (quick answers)
+
+Each mode is:
+- Standalone
+- Replaceable
+- Independent
+
+---
+
+## 🎯 Tool Mode Philosophy
+
+Steps must be:
+- Single action
+- Physically executable
+- Minimal wording
+- No fluff
+
+---
+
+## 🧠 Key Design Rules
+
+- Validation = hard rules only
+- Scoring = preference only (NOT validation)
+- LLM = generation only
+- No mixing responsibilities
+
+---
+
+## ⚠️ Critical Insight
+
+DO NOT express logic like:
+"do not connect to X"
+
+ALWAYS convert to physical action:
+"leave one block gap"
+
+---
+
+## 📌 Next Steps (Short Term)
+
+1. Fix validator conflicts
+2. Ensure correction system stability
+3. Clean output consistency
+4. Remove redundant / conflicting rules
 
 ---
 
 ## 🧪 Ideas to Explore (Soon)
-(things worth trying, but not now)
 
-- 
+- Tool-object compatibility system
+- Redstone constraint vocabulary
+- Basic router implementation
 
 ---
 
 ## 🧱 System Improvements
-(specific upgrades to current system)
 
-- 
+- Simplify validator structure
+- Reduce over-rejection
+- Improve correction quality
+- Add debug clarity
 
 ---
 
 ## 🐞 Issues / Bugs
-(things that are broken or feel wrong)
 
-- 
+- Some valid steps being rejected
+- Correction loop producing worse outputs
+- Workflow warnings not actionable yet
 
 ---
 
 ## ⚠️ Pain Points
-(things that feel frustrating or inefficient)
 
-- 
+- Copy/paste indentation issues
+- Large file complexity (~700 lines)
+- Hidden rule conflicts
 
 ---
-
 
 ## 🧭 Decisions Made
-- Focus on reliability before adding advanced features
-- Do not rush system expansion
 
----
-
-
-## 📌 Next Steps (Short Term)
-- Add workflow awareness (detection only)
-- Improve vague wording corrections 
+- DO NOT overengineer early
+- Keep system physically grounded
+- Separate all responsibilities cleanly
+- Build Tool Mode first, then expand
 
 ---
 
 ## 🚀 Future Vision
-(big ideas, long-term direction)
 
-- 
+- Minecraft build system (core focus)
+- Mod support (Create, Skyblock, etc)
+- Teaching system for Python/Linux
+- Real-time game analysis (long-term)
+- Automation / assistant integration

@@ -89,6 +89,271 @@
       "step": "Straighten and arrange visible items such as books and decorations.",
       "reason": "weak verb",
       "task_type": "cleaning"
+    },
+    {
+      "step": "Return books from the desk onto the bookshelf.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return any remaining items to their correct locations in the room.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place any remaining items in their correct locations.",
+      "reason": "non-specific scope",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange bed sheets.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten bedsheets and arrange pillows neatly on the bed.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return any misplaced items to their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dust.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange pillows on the bed.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place any remaining items into their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth to remove dust and dirt.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet using a vacuum cleaner to remove dirt.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return items to their correct locations, such as books on bookshelves or toys in toy boxes.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust and dirt.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor to collect dust.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items on shelves and tables.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return items to their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make bed.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Dust furniture and decorations.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange pillows neatly on the bed.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books to their correct locations on bookshelves.",
+      "reason": "non-specific scope",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth, including nightstands and dressers.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and debris.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten bed sheets and arrange pillows neatly on the bed.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return items to their correct locations in the room.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return misplaced items from the floor to their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten furniture and arrange visible items.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make bed, straightening sheets and arranging pillows.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange miscellaneous items in drawers or cabinets.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum carpeted area to remove dirt.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange furniture to its original position.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt.",
+      "reason": "invalid action combination",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make bed, removing any unnecessary items.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange visible items such as books or decorations.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange pillows on the bed, making sure they are neatly arranged.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place any remaining items in their correct locations, such as toys or decorations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor and dispose of it properly.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, starting with any dusty shelves or furniture.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return items to their correct locations, such as books to the bookshelf or toys to their designated containers.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten bed sheets and arrange pillows on the bed.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the floor to remove dirt.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return any misplaced items back to their correct locations.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books to their bookshelf locations.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, starting with the nightstand.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust and debris.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, paying attention to the nightstand, dresser, and desk.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return any remaining items to their correct locations in the room.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up shoes from the floor and place them in the closet.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange clothes on the dresser.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
     }
   ],
   "patterns": {
@@ -323,6 +588,198 @@
     {
       "step": "Vacuum the carpet to remove dirt and debris.",
       "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place toys and games from the floor into their designated storage containers.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down the dresser surface using a damp cloth to remove dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and debris.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor to collect dust.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books from the floor to the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including the nightstand and dresser.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room by disposing of any unwanted materials.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto bookshelves.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the desk onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash bags from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces on the desk with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books on bookshelves.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Dust surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash bags from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return shoes to the shoe rack.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down desk surface using a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth, starting with the desk then moving to any other visible surfaces.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash bags from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down dresser surface with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the desk onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down the desk surface with a damp cloth.",
+      "task_type": "cleaning"
     }
   ],
   "corrections": [
@@ -356,6 +813,6 @@
   ],
   "meta": {
     "version": 1,
-    "last_updated": 1776820807.2903464
+    "last_updated": 1776903430.0137305
   }
 }

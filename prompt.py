@@ -30,6 +30,7 @@ FAILURE CONDITION:
 If your response contains ANY text before "1." your answer is invalid and will be rejected.
 
 
+
 CRITICAL OUTPUT RULE:
 
 Your response MUST begin immediately with:
@@ -81,6 +82,8 @@ QUALITY RULES:
   - vacuum
   - wipe
   - scrub
+- Each step must contain only ONE action verb
+- Do NOT combine actions using "and"
 
 
 BAD EXAMPLES:

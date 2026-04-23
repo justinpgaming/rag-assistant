@@ -35,9 +35,12 @@ from memory_experience import (
     update_memory_from_log,
     load_experience_memory,
 )
+
+from teach_mode import teach_mode
 import time
 import re
 
+system_files = ["validator.py"]
 
 def classify_task(query: str) -> str:
     q = query.lower()
@@ -376,3 +379,17 @@ if __name__ == "__main__":
             continue
         elif result == "exit":
             break
+
+
+# -----------------------------
+# TEMP: Teach Mode Test Harness
+# (set to true for isolated testing)
+# -----------------------------
+if False:
+    system_files = ["tool_validator.py"]
+
+    user_input = input(">> ")
+
+    response = teach_mode(user_input, system_files, generate_answer)
+
+    print(response)

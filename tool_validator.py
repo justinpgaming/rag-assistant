@@ -6,6 +6,16 @@ from memory_experience import log_correction
 # CONSTANTS
 # -------------------------
 
+LOCATION_HINTS = {
+    "dresser": "in",
+    "drawer": "in",
+    "closet": "in",
+    "shelf": "on",
+    "bookshelf": "on",
+    "table": "on",
+    "desk": "on",
+}
+
 VAGUE_WORDS = {
     "thing",
     "things",
@@ -16,7 +26,16 @@ VAGUE_WORDS = {
     "items",
     "misc",
     "miscellaneous",
+    "remaining",
+    "any",
 }
+
+REDUNDANT_PATTERNS = [
+    "to remove",
+    "to clean",
+    "to collect",
+    "to pick up",
+]
 
 WEAK_VERBS = {
     "organize",
@@ -38,8 +57,54 @@ GENERIC_PHRASES = [
     "miscellaneous",
 ]
 
+BANNED_PHRASES = [
+    "here is",
+    "here's",
+    "below is",
+    "task list",
+    "steps:",
+    "improved step",
+    "corrected step",
+    "items",
+    "things",
+    "correct locations",
+    "visible items",
+    "any remaining",
+    "remaining items",
+    "leftover items",
+    "where they belong",
+    "correct locations",
+    "any items",
+    "items",
+    "in the room",
+]
+
 VAGUE_OBJECTS = ["items", "things", "stuff"]
 
+
+ACTION_VERBS = [
+    "pick",
+    "place",
+    "wipe",
+    "vacuum",
+    "sweep",
+    "remove",
+    "put",
+    "return",
+    "arrange",
+    "straighten",
+    "tuck",
+    "align",
+    "dust",
+    "scrub",
+]
+
+
+INVALID_ACTIONS = [
+    ("remove", "carpet"),
+    ("wipe", "bed"),
+    ("vacuum", "trash"),
+]
 
 FIX_GUIDE = {
     "vague wording": "Replace vague phrases with specific objects and actions.",
@@ -50,6 +115,7 @@ FIX_GUIDE = {
     "unnatural phrasing": "Rewrite using natural, simple wording.",
     "weak verb with vague object": "Replace with a specific object and a clear physical action.",
     "redundant object grouping": "Use a single clear object instead of listing similar ones.",
+    "multiple actions": "Split into one clear action. Do not combine actions.",
 }
 
 
@@ -60,15 +126,34 @@ FIX_GUIDE = {
 
 def build_correction_prompt(step_text: str, reason: str):
     return f"""
-Rewrite this step into a better, more specific action.
+Rewrite this step into a single, clear physical action.
 
-STRICT RULES:
-- Start with a strong action verb (pick, place, wipe, vacuum, sweep, remove)
+STRICT RULES (MUST FOLLOW):
+- Use EXACTLY ONE action verb
+- Allowed verbs: pick, place, wipe, vacuum, sweep, remove, put, return
+- Do NOT use more than one verb
+- Do NOT use the word "and"
+- Do NOT combine actions
+- Do NOT use weak verbs like: organize, tidy, straighten, arrange
 - Use a specific object (no "items", "things", "stuff")
-- Be clear and physical (something a human can do)
-- Do NOT reuse weak verbs like: organize, tidy, straighten, arrange
-- Do NOT explain anything
-- Output ONE single improved step only
+- The action must be physically doable in one motion
+
+FORMAT RULES:
+- Output ONLY one sentence
+- No explanations
+- No labels like "Improved step"
+- No extra text
+
+BAD EXAMPLES (DO NOT DO):
+- "Pick up clothes and put them away"
+- "Straighten and arrange bedding"
+- "Organize items on the desk"
+
+GOOD EXAMPLES:
+- "Pick up clothes from the floor and place them in the laundry hamper"  ← ❌ (still bad, shows why multi-action is wrong)
+- "Pick up clothes from the floor"  ← ✅
+- "Place books onto the bookshelf"  ← ✅
+- "Vacuum the carpet to remove dirt"  ← ✅
 
 Original step:
 {step_text}
@@ -76,17 +161,7 @@ Original step:
 Reason it is bad:
 {reason}
 
-Improved step:
-
-CRITICAL:
-
-Output ONLY the corrected step.
-Do NOT include:
-- explanations
-- labels like "Improved step"
-- any extra text
-
-If you include anything else, your answer is invalid.
+Corrected step:
 """
 
 
@@ -100,7 +175,23 @@ def evaluate_step(step, original_step):
 
     words = step.lower().strip().split()
 
-    VALID_STARTS = ("pick", "place", "wipe", "vacuum", "sweep", "remove")
+    VALID_STARTS = (
+        "pick",
+        "place",
+        "wipe",
+        "vacuum",
+        "sweep",
+        "remove",
+        "put",
+        "return",
+    )
+
+    # ❌ multiple actions (hard fail)
+    if " and " in step.lower():
+        score -= 40
+
+    #    if " to " in step.lower():
+    #        score -= 20
 
     # ❌ empty step
     if not words:
@@ -110,8 +201,9 @@ def evaluate_step(step, original_step):
     if words[0] not in VALID_STARTS:
         score -= 30
 
-    # ❌ too short
-    if len(words) < 4:
+    SHORT_ALLOWED = len(words) >= 2 and words[0] in VALID_STARTS
+
+    if not SHORT_ALLOWED and len(words) < 4:
         score -= 25
 
     # ❌ vague words
@@ -174,54 +266,132 @@ def step_parser(raw_output: str):
 # -------------------------
 # STEP VALIDATION
 # -------------------------
+def count_action_verbs(text: str):
+    words = re.findall(r"\b\w+\b", text.lower())
+
+    count = 0
+    hits = []
+
+    for i, w in enumerate(words):
+        if any(w.startswith(v) for v in ACTION_VERBS):
+            count += 1
+            hits.append(w)
+
+        # 👇 detect "to remove", "to collect", etc
+        if w == "to" and i + 1 < len(words):
+            next_word = words[i + 1]
+            if any(next_word.startswith(v) for v in ACTION_VERBS):
+                count += 1
+                hits.append(f"to_{next_word}")
+
+    return count, hits
 
 
 def validate_steps(steps, task_type=None):
     results = []
 
+    INVALID_ACTIONS = [
+        ("remove", "carpet"),
+        ("wipe", "bed"),
+        ("vacuum", "trash"),
+    ]
+
     for step in steps:
         text = step["text"]
+
         words = re.findall(r"\b\w+\b", text.lower())
+        text_lower = text.lower()
+        word_count = len(words)
 
         valid = True
         reason = None
 
-        has_weak = any(w in words for w in WEAK_VERBS)
-        has_vague = any(w in words for w in VAGUE_WORDS)
+        # -------------------------
+        # INVALID ACTION COMBO
+        # -------------------------
+        for verb, obj in INVALID_ACTIONS:
+            if verb in text_lower and obj in text_lower:
+                valid = False
+                reason = "invalid action combination"
+                break
 
-        if has_weak:
+        # -------------------------
+        # MULTIPLE ACTION (HARD RULE)
+        # -------------------------
+        verb_count, _ = count_action_verbs(text)
+
+        if verb_count > 1:
+            valid = False
+            reason = "multiple actions"
+
+
+        # -------------------------
+        # PURPOSE / CHAINED ACTIONS
+        # -------------------------
+        elif " to " in text_lower:
+            valid = False
+            reason = "multiple actions"
+
+        elif "," in text_lower:
+            valid = False
+            reason = "multiple actions"
+
+        # -------------------------
+        # ACTION DETECTION
+        # -------------------------
+        elif valid and count_action_verbs(text)[0] > 1:
+            valid = False
+            reason = "multiple actions"
+
+        # -------------------------
+        # WEAK / VAGUE WORDING
+        # -------------------------
+        elif valid and any(w in words for w in WEAK_VERBS):
             valid = False
             reason = "weak verb"
-        elif has_vague:
+
+        elif valid and any(w in words for w in VAGUE_WORDS):
             valid = False
             reason = "vague wording"
 
-        ACTION_VERBS = ["pick", "place", "wipe", "vacuum", "sweep", "remove"]
-
-        text_lower = text.lower()
-        words = text_lower.split()
-
-        has_action = any(v in text_lower for v in ACTION_VERBS)
-        word_count = len(words)
-
-        # -------------------------
-        # SHORT STEP (allowed)
-        # -------------------------
-        SHORT_ALLOWED = word_count == 2 and words[0] in ACTION_VERBS
-
-        # -------------------------
-        # NORMAL STEP (detailed)
-        # -------------------------
-        LONG_ENOUGH = word_count >= 5
-
-        # -------------------------
-        # FINAL RULE
-        # -------------------------
-        if valid and not (has_action and (SHORT_ALLOWED or LONG_ENOUGH)):
+        elif valid and "items" in text_lower:
             valid = False
-            reason = "too short"
+            reason = "vague wording"
 
-        # SAVE RESULT
+        elif any(w in text_lower for w in ["items", "things", "stuff", "anything", "any", "remaining"]):
+            valid = False
+            reason = "vague wording"
+
+        # -------------------------
+        # BANNED PHRASES
+        # -------------------------
+        elif valid and any(p in text_lower for p in BANNED_PHRASES):
+            valid = False
+            reason = "non-specific scope"
+
+
+        elif any(p in text_lower for p in REDUNDANT_PATTERNS):
+            valid = False
+            reason = "redundant phrasing"
+
+
+        elif "remove dirt" in text_lower:
+            valid = False
+            reason = "missing tool"
+
+        # -------------------------
+        # LENGTH / ACTION RULE
+        # -------------------------
+        else:
+            has_action = any(v in text_lower for v in ACTION_VERBS)
+
+            SHORT_ALLOWED = word_count == 2 and words[0] in ACTION_VERBS
+            LONG_ENOUGH = word_count >= 3
+
+            if not (has_action and (SHORT_ALLOWED or LONG_ENOUGH)):
+                valid = False
+                reason = "too short"
+
         results.append(
             {
                 "index": step["index"],
@@ -306,6 +476,8 @@ def check_workflow(steps):
 def correct_step(
     step_text: str, reason: str, llm_call_fn, experience_memory, task_type=None
 ):
+
+    print("🔍 START:", step_text)
     prompt = build_correction_prompt(step_text, reason)
 
     # -------------------------
@@ -313,7 +485,7 @@ def correct_step(
     # -------------------------
     corrected = llm_call_fn(prompt)
 
-    print("\n🔧 RAW CORRECTION:", corrected)
+    # print("\n🔧 RAW CORRECTION:", corrected)
 
     if not corrected:
         return step_text
@@ -357,21 +529,21 @@ def correct_step(
     # (your existing logic continues below)
     # -------------------------
 
-    if cleaned.lower() in [
-        c["attempted_fix"].lower() for c in experience_memory.get("corrections", [])
-    ]:
-        print("❌ REJECTED (duplicate fix):", cleaned)
+    #    if cleaned.lower() in [
+    #        c["attempted_fix"].lower() for c in experience_memory.get("corrections", [])
+    #    ]:
+    #        print("❌ REJECTED (duplicate fix):", cleaned)
 
-        log_correction(
-            memory=experience_memory,
-            original_step=step_text,
-            failure_reason=reason,
-            attempted_fix=cleaned,
-            accepted=False,
-            task_type=task_type,
-        )
+    #        log_correction(
+    #            memory=experience_memory,
+    #            original_step=step_text,
+    #            failure_reason=reason,
+    #            attempted_fix=cleaned,
+    #            accepted=False,
+    #            task_type=task_type,
+    #        )
 
-        return step_text
+    #        return step_text
 
     # -------------------------
     # HARD FILTER
@@ -398,102 +570,44 @@ def correct_step(
 
         return step_text
 
-    # -------------------------
-    # MIN LENGTH CHECK
-    # -------------------------
-    if len(cleaned.split()) < 4:
-        print("❌ REJECTED:", cleaned)
-
-        log_correction(
-            memory=experience_memory,
-            original_step=step_text,
-            failure_reason=reason,
-            attempted_fix=cleaned,
-            accepted=False,
-            task_type=task_type,
-        )
-
-        return step_text
+    print("➡️ ENTERING STRUCTURE:", cleaned)
 
     # -------------------------
-    # MUST START WITH ACTION
-    # -------------------------
-    VALID_STARTS = ("pick", "place", "wipe", "vacuum", "sweep", "remove")
-
-    first_word = lowered.split()[0]
-
-    if first_word not in VALID_STARTS:
-        print("❌ REJECTED:", cleaned)
-
-        log_correction(
-            memory=experience_memory,
-            original_step=step_text,
-            failure_reason=reason,
-            attempted_fix=cleaned,
-            accepted=False,
-            task_type=task_type,
-        )
-
-        return step_text
-
-    # -------------------------
-    # LENGTH RULE
+    # BASIC STRUCTURE CHECKS
     # -------------------------
     words = lowered.split()
 
-    SHORT_ALLOWED = len(words) == 2 and words[0] in VALID_STARTS
+    VALID_STARTS = ("pick", "place", "wipe", "vacuum", "sweep", "remove")
+
+    if not words:
+        return step_text
+
+    # must start with valid verb
+    if words[0] not in VALID_STARTS:
+        print("❌ REJECTED:", cleaned)
+        return step_text
+
+    # allow short but valid actions (like "vacuum carpet")
+    SHORT_ALLOWED = len(words) >= 2 and words[0] in VALID_STARTS
     LONG_ENOUGH = len(words) >= 4
 
     if not (SHORT_ALLOWED or LONG_ENOUGH):
         print("❌ REJECTED:", cleaned)
-
-        log_correction(
-            memory=experience_memory,
-            original_step=step_text,
-            failure_reason=reason,
-            attempted_fix=cleaned,
-            accepted=False,
-            task_type=task_type,
-        )
-
         return step_text
 
-    # -------------------------
-    # FINAL SAFETY
-    # -------------------------
-    if any(x in cleaned for x in ["(", ")", ":"]):
-        print("❌ REJECTED:", cleaned)
-
-        log_correction(
-            memory=experience_memory,
-            original_step=step_text,
-            failure_reason=reason,
-            attempted_fix=cleaned,
-            accepted=False,
-            task_type=task_type,
-        )
-
-        return step_text
-
-    # -------------------------
-    # CLEAN FINAL FORMAT
-    # -------------------------
-    if not cleaned.endswith("."):
-        cleaned += "."
-
+    # reject vague objects
     if any(w in words for w in VAGUE_OBJECTS):
         print("❌ REJECTED:", cleaned)
-
-        log_correction(
-            memory=experience_memory,
-            original_step=step_text,
-            failure_reason=reason,
-            attempted_fix=cleaned,
-            accepted=False,
-            task_type=task_type,
-        )
-
         return step_text
+
+    # safety filter
+    if any(x in cleaned for x in ["(", ")", ":"]):
+        print("❌ REJECTED:", cleaned)
+        return step_text
+
+    # ensure period
+    if not cleaned.endswith("."):
+        cleaned += "."
 
     # ✅ SUCCESS LOG
     log_correction(
@@ -504,22 +618,33 @@ def correct_step(
         accepted=True,
         task_type=task_type,
     )
+
+    for obj, correct_prep in LOCATION_HINTS.items():
+        if obj in lowered:
+            if f"on the {obj}" in lowered and correct_prep == "in":
+                cleaned = cleaned.replace(f"on the {obj}", f"in the {obj}")
+            elif f"in the {obj}" in lowered and correct_prep == "on":
+                cleaned = cleaned.replace(f"in the {obj}", f"on the {obj}")
     return cleaned
 
 
 def apply_step_corrections(steps, validation_results, llm_call_fn, experience_memory):
     corrected = []
-
-    task_type = "cleaning"  # TEMP: or pass dynamically later
+    task_type = "cleaning"  # TEMP
 
     for step, result in zip(steps, validation_results):
-        step_text = step["text"]
+        step_text = step["text"]  # ALWAYS FIRST
 
+        # -------------------------
+        # IF ALREADY VALID → KEEP
+        # -------------------------
         if result["valid"]:
             corrected.append(step_text)
             continue
 
-        # First correction attempt
+        # -------------------------
+        # FIRST CORRECTION ATTEMPT
+        # -------------------------
         fixed = correct_step(
             step_text,
             result["reason"],
@@ -528,11 +653,20 @@ def apply_step_corrections(steps, validation_results, llm_call_fn, experience_me
             task_type=task_type,
         )
 
-        # Score the corrected step
+        # -------------------------
+        # VALIDATE CORRECTION
+        # -------------------------
+        fixed_eval = validate_steps([{"index": 0, "text": fixed}])[0]
+
+        # -------------------------
+        # SCORE CORRECTION
+        # -------------------------
         score = evaluate_step(fixed, step_text)
 
-        # Retry ONCE if score is too low
-        if score < 70:
+        # -------------------------
+        # RETRY ONCE IF BAD
+        # -------------------------
+        if not fixed_eval["valid"] or score < 60:
             retry_prompt = (
                 f"Original step: {step_text}\n"
                 f"Issue: {result['reason']}\n\n"
@@ -543,33 +677,43 @@ def apply_step_corrections(steps, validation_results, llm_call_fn, experience_me
 
             improved = llm_call_fn(retry_prompt)
 
-            # Re-score after retry
-            retry_score = evaluate_step(improved, step_text)
+            if improved:
+                retry_eval = validate_steps([{"index": 0, "text": improved}])[0]
+                retry_score = evaluate_step(improved, step_text)
 
-            # Use the better result
-            if retry_score >= score:
-                fixed = improved
-                score = retry_score
+                print(f"🔁 Retry Score: {retry_score}/100")
 
-        # LOG (fixed)
-        log_correction(
-            memory=experience_memory,
-            original_step=step_text,
-            failure_reason=result["reason"],
-            attempted_fix=fixed,
-            accepted=True,
-            task_type=task_type,
-        )
+                if retry_eval["valid"] and retry_score >= score:
+                    fixed = improved
+                    score = retry_score
+                    fixed_eval = retry_eval
 
-        corrected.append(fixed)
+        # -------------------------
+        # DECISION BLOCK
+        # -------------------------
+        orig = step_text
+
+        # HARD RULE: never allow multi-action
+        if result["reason"] == "multiple actions":
+            final = fixed
+
+        elif fixed_eval["valid"]:
+            final = fixed
+
+        else:
+            final = fixed if score >= 60 else orig
+
+        # -------------------------
+        # SAVE RESULT
+        # -------------------------
+        corrected.append(final)
 
     return corrected
 
 
-# -------------------------
-# OUTPUT REBUILD
-# -------------------------
-
-
 def rebuild_output(corrected_steps):
     return "\n".join(f"{i+1}. {s}" for i, s in enumerate(corrected_steps))
+
+if __name__ == "__main__":
+    count, hits = count_action_verbs("vacuum the carpet to remove dirt")
+    print("DEBUG:", count, hits)

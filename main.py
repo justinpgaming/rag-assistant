@@ -3,6 +3,9 @@
 # CLEAN REBUILD
 # =========================================
 
+
+
+
 print("🔥 CLEAN MAIN LOADED 🔥")
 
 from rag import load_data, retrieve
@@ -40,7 +43,8 @@ from teach_mode import teach_mode
 import time
 import re
 
-system_files = ["validator.py"]
+system_files = ["tool_validator.py"]
+
 
 def classify_task(query: str) -> str:
     q = query.lower()
@@ -194,6 +198,30 @@ def main():
 
         mode = None
         skip_bypass = False
+
+        # -----------------------------
+        # ROUTER
+        # -----------------------------
+        teach_keywords = ["explain", "describe", "where", "what", "how", "why"]
+
+        code_indicators = [".py", "function", "code", "file"]
+
+        query_lower = query.lower()
+
+        if any(word in query_lower for word in teach_keywords):
+            mode = "teach"
+        else:
+            mode = "tool"
+        print(f"DEBUG MODE: {mode}")
+
+        # -----------------------------
+        # TEACH MODE
+        # -----------------------------
+        if mode == "teach":
+            system_files = ["tool_validator.py"]
+            response = teach_mode(query, system_files, generate_answer)
+            print(response)
+            continue
 
         # -----------------------------
         # EXIT

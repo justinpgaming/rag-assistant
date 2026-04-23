@@ -354,6 +354,31 @@
       "step": "Straighten and arrange clothes on the dresser.",
       "reason": "multiple actions",
       "task_type": "cleaning"
+    },
+    {
+      "step": "Return misplaced items to their correct locations.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Determine if the task is a general cleaning action.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Check for specific actions such as sweep, vacuum, wipe, or scrub.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Identify items that need to be moved and separate them from tasks that require physical effort.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Arrange pillows neatly on the bed",
+      "reason": "weak verb",
+      "task_type": "general"
     }
   ],
   "patterns": {
@@ -780,6 +805,18 @@
     {
       "step": "Wipe down the desk surface with a damp cloth.",
       "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Rearrange furniture starting with straightening bedsheets.",
+      "task_type": "general"
     }
   ],
   "corrections": [
@@ -813,6 +850,6 @@
   ],
   "meta": {
     "version": 1,
-    "last_updated": 1776903430.0137305
+    "last_updated": 1776979253.3915632
   }
 }

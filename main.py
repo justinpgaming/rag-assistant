@@ -4,8 +4,6 @@
 # =========================================
 
 
-
-
 print("🔥 CLEAN MAIN LOADED 🔥")
 
 from rag import load_data, retrieve
@@ -77,6 +75,7 @@ def stream_response(prompt, mode):
 
 
 def run_tool_mode(query, chunks, task_type):
+    output = ""
     attempts = 0
     max_attempts = 3
 
@@ -95,8 +94,61 @@ def run_tool_mode(query, chunks, task_type):
 
             return "[ERROR] Invalid tool output structure"
 
-        print("RAW OUTPUT:")
-        print(response_text)
+        output += "RAW OUTPUT:\n"
+        output += response_text + "\n"
+
+        # -----------------------------
+        # STEP PARSING
+        # -----------------------------
+        steps = step_parser(response_text)
+
+        # -----------------------------
+        # STEP VALIDATION
+        # -----------------------------
+        results = validate_steps(steps, task_type)
+
+        print("DEBUG results:", results)
+        print("TYPE:", type(results))
+
+        has_invalid = any(not r["valid"] for r in results)
+
+        # -----------------------------
+        # 🧠 EXPERIENCE MEMORY LOGGING
+        # -----------------------------
+        experience_memory = load_experience_memory()
+
+        log = {"task_type": task_type, "validation": results}
+
+        experience_memory = update_memory_from_log(log, experience_memory)
+        save_experience_memory(experience_memory)
+
+        print("\n🧠 EXPERIENCE MEMORY STATS")
+        print("Failures:", len(experience_memory["failures"]))
+        print("Successes:", len(experience_memory["successes"]))
+
+
+def run_tool_mode(query, chunks, task_type):
+    output = ""
+    attempts = 0
+    max_attempts = 3
+
+    while attempts < max_attempts:
+        prompt = build_prompt(query, chunks, "tool", task_type=task_type)
+        response_text = stream_response(prompt, "tool")
+
+        # -----------------------------
+        # STRUCTURE VALIDATION (GATE)
+        # -----------------------------
+        valid_structure, reason = validate_tool_output(response_text)
+
+        if not valid_structure:
+            print(f"\n❌ STRUCTURE FAILURE: {reason}")
+            print("❌ Output rejected — invalid tool format\n")
+
+            return "[ERROR] Invalid tool output structure"
+
+        output += "RAW OUTPUT:\n"
+        output += response_text + "\n"
 
         # -----------------------------
         # STEP PARSING
@@ -133,16 +185,15 @@ def run_tool_mode(query, chunks, task_type):
         workflow_warnings = check_workflow(steps)
 
         if not has_invalid:
-            return response_text
+            final_output = response_text
+        else:
+            print("\n⚠ Invalid steps detected — applying corrections...\n")
 
-        # -----------------------------
-        # STEP CORRECTION
-        # -----------------------------
-        print("\n⚠ Invalid steps detected — applying corrections...\n")
+            corrected_steps = apply_step_corrections(
+                steps, results, lambda p: generate_answer(p), experience_memory
+            )
 
-        corrected_steps = apply_step_corrections(
-            steps, results, lambda p: generate_answer(p), experience_memory
-        )
+            final_output = rebuild_output(corrected_steps)
 
         # -----------------------------
         # REBUILD OUTPUT
@@ -168,6 +219,35 @@ def run_tool_mode(query, chunks, task_type):
         return response_text
 
 
+def run_pipeline(query, *args, **kwargs):
+    print("DEBUG RAW INPUT:", query)
+
+    # -----------------------------
+    # 🔥 HARD DEBUG OVERRIDE (TOP PRIORITY)
+    # -----------------------------
+    if query.strip().startswith("/debug"):
+        print("FORCED DEBUG MODE")
+
+        from llm import generate_answer
+        from debug_mode import run_debug_mode
+
+        return run_debug_mode(query, generate_answer)
+    chunks = []
+    task_type = classify_task(query)
+
+    if mode == "tool":
+        return run_tool_mode(query, chunks, task_type)
+
+    elif mode == "teach":
+        return teach_mode(query, ["tool_validator.py"], generate_answer)
+
+    elif mode == "debug":
+        return "Debug mode not implemented yet"
+
+    else:
+        return "Unknown mode"
+
+
 def main():
     print("🧠 Loading RAG system...")
 
@@ -189,7 +269,16 @@ def main():
     )
 
     while True:
-        query = input("\n> ").strip()
+        print("\n> (Enter command. Type END on a new line to submit)")
+
+        lines = []
+        while True:
+            line = input()
+            if line.strip() == "END":
+                break
+            lines.append(line)
+
+        query = "\n".join(lines).strip()
 
         if not query:
             continue
@@ -208,10 +297,30 @@ def main():
 
         query_lower = query.lower()
 
-        if any(word in query_lower for word in teach_keywords):
+        # -----------------------------
+        # MANUAL MODE OVERRIDE (PRIORITY)
+        # -----------------------------
+        if query.startswith("/debug"):
+            from debug_mode import run_debug_mode
+
+            result = run_debug_mode(query, generate_answer)
+            print(result)
+            return
+
+        elif query.startswith("/run"):
+            mode = "tool"
+
+        elif query.startswith("/teach"):
+            mode = "teach"
+
+        # -----------------------------
+        # AUTO MODE DETECTION (FALLBACK)
+        # -----------------------------
+        elif any(word in query_lower for word in teach_keywords):
             mode = "teach"
         else:
             mode = "tool"
+
         print(f"DEBUG MODE: {mode}")
 
         # -----------------------------
@@ -344,30 +453,38 @@ def main():
         # -----------------------------
         # FOCUS SYSTEM
         # -----------------------------
-        allowed, new_task = handle_focus(query)
 
-        if not allowed:
-            current = get_task()
-            control_mode = get_control_mode()
 
-            if control_mode == "strict":
-                print("🚫 Strict mode — task blocked")
-                continue
+        # -----------------------------
+        # FOCUS SYSTEM (DISABLED)
+        # -----------------------------
+        FOCUS_ENABLED = False
 
-            print("\n⚠ New task detected!")
-            print(f"Current: {current}")
-            print(f"New: {new_task}")
-            print("[1] Continue  [2] Switch  [3] Queue")
+        if FOCUS_ENABLED:
+            allowed, new_task = handle_focus(query)
 
-            choice = input("> ").strip()
+            if not allowed:
+                current = get_task()
+                control_mode = get_control_mode()
 
-            if choice == "2":
-                set_task(new_task)
-            elif choice == "3":
-                add_to_queue(new_task)
-                continue
-            else:
-                continue
+                if control_mode == "strict":
+                    print("🚫 Strict mode — task blocked")
+                    continue
+
+                print("\n⚠ New task detected!")
+                print(f"Current: {current}")
+                print(f"New: {new_task}")
+                print("[1] Continue  [2] Switch  [3] Queue")
+
+                choice = input("> ").strip()
+
+                if choice == "2":
+                    set_task(new_task)
+                elif choice == "3":
+                    add_to_queue(new_task)
+                    continue
+                else:
+                    continue
 
         # -----------------------------
         # CORE FLOW

@@ -30,11 +30,12 @@ VAGUE_WORDS = {
     "any",
 }
 
+# temporarily removed due to conflicts
 REDUNDANT_PATTERNS = [
-    "to remove",
-    "to clean",
-    "to collect",
-    "to pick up",
+    #    "to remove",
+    #    "to clean",
+    #    "to collect",
+    #    "to pick up",
 ]
 
 WEAK_VERBS = {
@@ -44,8 +45,6 @@ WEAK_VERBS = {
     "fix",
     "handle",
     "manage",
-    "arrange",
-    "straighten",
     "sort",
 }
 
@@ -288,6 +287,8 @@ def count_action_verbs(text: str):
 
 
 def validate_steps(steps, task_type=None):
+    print("\n=== VALIDATION START ===")
+
     results = []
 
     INVALID_ACTIONS = [
@@ -298,9 +299,14 @@ def validate_steps(steps, task_type=None):
 
     for step in steps:
         text = step["text"]
-
-        words = re.findall(r"\b\w+\b", text.lower())
         text_lower = text.lower()
+
+        # 🔍 DEBUG HEADER (safe + structured)
+        print("\n=== STEP START ===")
+        print(f"RAW: {text}")
+        print(f"NORMALIZED: {text_lower}")
+
+        words = re.findall(r"\b\w+\b", text_lower)
         word_count = len(words)
 
         valid = True
@@ -311,6 +317,7 @@ def validate_steps(steps, task_type=None):
         # -------------------------
         for verb, obj in INVALID_ACTIONS:
             if verb in text_lower and obj in text_lower:
+                print(f"INVALID MATCH: {verb} + {obj}")
                 valid = False
                 reason = "invalid action combination"
                 break
@@ -318,71 +325,61 @@ def validate_steps(steps, task_type=None):
         # -------------------------
         # MULTIPLE ACTION (HARD RULE)
         # -------------------------
-        verb_count, _ = count_action_verbs(text)
+        if valid:
+            verb_count, _ = count_action_verbs(text)
 
-        if verb_count > 1:
-            valid = False
-            reason = "multiple actions"
-
+            if verb_count > 1:
+                valid = False
+                reason = "multiple actions"
 
         # -------------------------
         # PURPOSE / CHAINED ACTIONS
         # -------------------------
-        elif " to " in text_lower:
+        if valid and " to " in text_lower:
             valid = False
             reason = "multiple actions"
 
-        elif "," in text_lower:
-            valid = False
-            reason = "multiple actions"
-
-        # -------------------------
-        # ACTION DETECTION
-        # -------------------------
-        elif valid and count_action_verbs(text)[0] > 1:
+        if valid and "," in text_lower:
             valid = False
             reason = "multiple actions"
 
         # -------------------------
         # WEAK / VAGUE WORDING
         # -------------------------
-        elif valid and any(w in words for w in WEAK_VERBS):
+        if valid and any(w in words for w in WEAK_VERBS):
             valid = False
             reason = "weak verb"
 
-        elif valid and any(w in words for w in VAGUE_WORDS):
+        if valid and any(w in words for w in VAGUE_WORDS):
             valid = False
             reason = "vague wording"
 
-        elif valid and "items" in text_lower:
-            valid = False
-            reason = "vague wording"
-
-        elif any(w in text_lower for w in ["items", "things", "stuff", "anything", "any", "remaining"]):
+        if valid and any(
+            w in text_lower
+            for w in ["items", "things", "stuff", "anything", "any", "remaining"]
+        ):
             valid = False
             reason = "vague wording"
 
         # -------------------------
         # BANNED PHRASES
         # -------------------------
-        elif valid and any(p in text_lower for p in BANNED_PHRASES):
+        if valid and any(p in text_lower for p in BANNED_PHRASES):
             valid = False
             reason = "non-specific scope"
 
-
-        elif any(p in text_lower for p in REDUNDANT_PATTERNS):
+        if valid and any(p in text_lower for p in REDUNDANT_PATTERNS):
             valid = False
             reason = "redundant phrasing"
 
-
-        elif "remove dirt" in text_lower:
+        if valid and "remove dirt" in text_lower:
             valid = False
             reason = "missing tool"
 
         # -------------------------
         # LENGTH / ACTION RULE
         # -------------------------
-        else:
+        if valid:
             has_action = any(v in text_lower for v in ACTION_VERBS)
 
             SHORT_ALLOWED = word_count == 2 and words[0] in ACTION_VERBS
@@ -391,6 +388,8 @@ def validate_steps(steps, task_type=None):
             if not (has_action and (SHORT_ALLOWED or LONG_ENOUGH)):
                 valid = False
                 reason = "too short"
+
+        print(f"RESULT: valid={valid}, reason={reason}")
 
         results.append(
             {
@@ -402,11 +401,6 @@ def validate_steps(steps, task_type=None):
         )
 
     return results
-
-
-# -------------------------
-# STEP TYPE
-# -------------------------
 
 
 def get_step_type(step_text: str) -> str:
@@ -713,6 +707,7 @@ def apply_step_corrections(steps, validation_results, llm_call_fn, experience_me
 
 def rebuild_output(corrected_steps):
     return "\n".join(f"{i+1}. {s}" for i, s in enumerate(corrected_steps))
+
 
 if __name__ == "__main__":
     count, hits = count_action_verbs("vacuum the carpet to remove dirt")

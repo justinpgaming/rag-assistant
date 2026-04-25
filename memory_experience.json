@@ -379,6 +379,346 @@
       "step": "Arrange pillows neatly on the bed",
       "reason": "weak verb",
       "task_type": "general"
+    },
+    {
+      "step": "Straighten bedsheets on the bed.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books to their correct locations on the bookshelf.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books to their bookshelf.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth, starting with the desk and then moving on to the nightstand.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet using a vacuum cleaner to remove dirt and dust.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect any remaining dust or debris.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return items to their correct locations.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including furniture and shelves.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books and other items back onto their shelves or in their designated places.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up books from the floor and place them on the bookshelf.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return clothes to their dresser drawers.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including the desk and nightstand.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place any remaining items in their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Dust the furniture using a duster.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make sure all surfaces are tidy and organized.",
+      "reason": "weak verb",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including nightstands, dresser, and windowsills.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up shoes from the floor and return them to their storage location.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including nightstands, dresser, and desk.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange bed sheets.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place misplaced items onto their correct shelves or tables.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place any remaining misplaced items back in their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return any returned items to their original positions.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Run diagnostic tests on the system to verify functionality.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Activate debug mode to ensure accurate results.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Execute a series of test cases to validate performance.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Review logs for any errors or anomalies.",
+      "reason": "vague wording",
+      "task_type": "general"
+    },
+    {
+      "step": "Verify overall system integrity and stability.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Move testing files from desktop to project folder.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down workspace with disinfectant wipes.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Vacuum the carpet to remove dust.",
+      "reason": "invalid action combination",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including furniture and knick-knacks.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and dust.",
+      "reason": "invalid action combination",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Move tool_validator.py file from the source directory to a temporary working directory.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Open the terminal and navigate to the working directory containing tool_validator.py.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Run the command \"python tool_validator.py\" to execute the script.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Review and understand the code by reading through it, paying attention to variable names, function calls, and control flow statements.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Move debugging tools to the workspace.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up printed debugging reports and place them in a binders.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up clothes from the floor and place them in the laundry hamper",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Straighten bedsheets and arrange pillows neatly on the bed",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Sweep the floor using a broom to collect dust",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Make bed with hospital corners and smooth out wrinkles.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up clothes from floor and place them in laundry hamper.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Straighten desk surface and arrange papers neatly.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down chair with damp cloth to remove dust.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Vacuum carpet to remove dirt and crumbs.",
+      "reason": "invalid action combination",
+      "task_type": "general"
+    },
+    {
+      "step": "Reorganize the variables to reduce complexity.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Simplify the logical operations using bitwise operators.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Optimize the memory usage by redefining constants.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Recursively eliminate unnecessary loops.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down surfaces using a damp cloth to remove dust",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Arrange pillows on the bed to create a neat appearance",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Straighten bedsheets and arrange them neatly on the bed",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Identify the error message and rewrite it into a clear physical action.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Print the rewritten statement to standard output.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Determine the type of object or structure that the error message refers to.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Move the printed statement to a temporary holding area.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Return the rewritten statement to its original location.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Move the file to a temporary directory.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Open the file in an editor.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Review the code for syntax errors.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Fix any syntax errors found.",
+      "reason": "weak verb",
+      "task_type": "general"
+    },
+    {
+      "step": "Run the file again to verify changes.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up tools from the workbench and return them to their designated storage locations.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down the work surface using a damp cloth to remove any debris or spills.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Vacuum the floor to collect dust and dirt.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up shoes from floor and place them in closet.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Straighten living room furniture to remove wrinkles.",
+      "reason": "multiple actions",
+      "task_type": "general"
     }
   ],
   "patterns": {
@@ -817,6 +1157,174 @@
     {
       "step": "Rearrange furniture starting with straightening bedsheets.",
       "task_type": "general"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down desk surfaces using a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down desk surface with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange folders on the desk in alphabetical order.",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up loose papers and recycle them.",
+      "task_type": "general"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Verify that the output of the script matches expected results for the given input data.",
+      "task_type": "general"
+    },
+    {
+      "step": "Place a fresh sheet of paper on the debugging console.",
+      "task_type": "general"
+    },
+    {
+      "step": "Arrange debugging logs in chronological order.",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down the debugging surface using a lint-free cloth.",
+      "task_type": "general"
+    },
+    {
+      "step": "Place books from the desk onto the bookshelf",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down the desk surface using a damp cloth",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up redundant patterns from the code and discard them.",
+      "task_type": "general"
+    },
+    {
+      "step": "Straighten out the cords and wires on the workbench.",
+      "task_type": "general"
+    },
+    {
+      "step": "Arrange files and papers in alphabetical order on the nearby shelf.",
+      "task_type": "general"
+    },
+    {
+      "step": "Place dirty laundry into washing machine basket.",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down kitchen counters with damp cloth.",
+      "task_type": "general"
     }
   ],
   "corrections": [
@@ -850,6 +1358,6 @@
   ],
   "meta": {
     "version": 1,
-    "last_updated": 1776979253.3915632
+    "last_updated": 1777086994.5083811
   }
 }

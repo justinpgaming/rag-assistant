@@ -114,3 +114,69 @@ ALWAYS convert to physical action:
 - Teaching system for Python/Linux
 - Real-time game analysis (long-term)
 - Automation / assistant integration
+
+
+---
+
+## 🖥️ GUI DESIGN RULE (CRITICAL - DO NOT BREAK)
+
+The GUI must NEVER replace or bypass the command system.
+
+The system is command-first, GUI-second.
+
+### ✅ REQUIRED ARCHITECTURE
+
+GUI
+→ builds command string
+→ sends to main.py
+→ router
+→ mode
+
+---
+
+### ✅ EXAMPLE
+
+If user selects Debug Mode in GUI:
+
+The GUI MUST generate:
+
+/debug
+
+[FILE: example.py]
+
+<code here>
+
+[ERROR]
+<error here>
+
+---
+
+### ❌ DO NOT DO THIS
+
+- Do NOT call mode functions directly from GUI
+- Do NOT pass structured arguments like:
+  run_debug_mode(code, error, file_name)
+
+- Do NOT create a separate execution path for GUI
+
+---
+
+### ✅ WHY THIS RULE EXISTS
+
+- Keeps system modular
+- Prevents duplicate logic
+- Allows CLI and GUI to behave identically
+- Prevents future debugging complexity
+- Makes system easier to maintain and expand
+
+---
+
+### 🧠 PRINCIPLE
+
+The GUI is ONLY a visual layer.
+
+It does NOT contain logic.
+It does NOT replace commands.
+It ONLY builds and sends commands.
+
+---

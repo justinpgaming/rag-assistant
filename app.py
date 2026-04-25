@@ -1,71 +1,115 @@
+import os
+
+os.environ["TRANSFORMERS_NO_TORCHVISION"] = "1"
+os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
 import streamlit as st
-from teach_mode import teach_mode
-from main import generate_answer
+from main import run_pipeline
+
 
 # -----------------------------
 # PAGE CONFIG
 # -----------------------------
-st.set_page_config(page_title="RAG Assistant", layout="wide")
+st.markdown(
+    """
+<style>
+
+/* layout spacing */
+.block-container {
+    padding-top: 1.4rem;
+    padding-bottom: 0rem;
+}
+
+/* output text size */
+textarea {
+    font-size: 14px !important;
+    line-height: 1.4;
+}
+
+/* center header */
+.center-text {
+    text-align: center;
+    font-weight: bold;
+}
+
+/* 🔥 hide ALL buttons inside forms */
+div[data-testid="stForm"] button {
+    display: none !important;
+}
+
+/* 🔥 Force full width (correct container) */
+.block-container {
+    max-width: 100% !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+
+</style>
+""",
+    unsafe_allow_html=True,
+)
 
 # -----------------------------
-# SIDEBAR (controls)
-# -----------------------------
-st.sidebar.title("Controls")
-
-mode = st.sidebar.radio("Mode", ["teach", "tool"])
-
-# future toggle ready
-style = st.sidebar.radio("Style", ["strict", "helpful"])
-
-# -----------------------------
-# HEADER
-# -----------------------------
-st.title("🧠 RAG Assistant")
-
-# -----------------------------
-# SESSION STATE (keeps output)
+# STATE
 # -----------------------------
 if "output" not in st.session_state:
     st.session_state.output = ""
 
-# -----------------------------
-# MAIN OUTPUT WINDOW
-# -----------------------------
-output_container = st.container()
 
-with output_container:
-    st.subheader("Output")
+# -----------------------------
+# LAYOUT
+# -----------------------------
+col1 = st.container()
 
-    st.text_area(
-        label="",
-        value=st.session_state.output,
-        height=500,  # BIG window
-        key="output_box",
+# LEFT SIDE (OUTPUT + INPUT)
+with col1:
+
+    st.markdown(
+        """
+<style>
+.center-text {
+    text-align: center;
+    font-weight: bold;
+}
+
+</style>
+""",
+        unsafe_allow_html=True,
     )
+    st.markdown('<div class="center-text">**OUTPUT**</div>', unsafe_allow_html=True)
 
 # -----------------------------
-# INPUT (bottom)
+# DISPLAY OUTPUT (TOP)
 # -----------------------------
-st.divider()
 
-query = st.text_area(
-    "Enter command",
-    height=100,
-    placeholder="e.g. explain my tool_validator.py step by step",
+st.text_area(
+    label="Output",
+    value=st.session_state.output,
+    height=675,
+    label_visibility="collapsed",
 )
 
-run = st.button("Run", use_container_width=True)
 
 # -----------------------------
-# EXECUTION
+# INPUT FORM (ENTER TO RUN)
 # -----------------------------
-if run and query.strip():
-    system_files = ["tool_validator.py"]
+with st.form("command_form", clear_on_submit=True):
+    user_input = st.text_input("Enter command", placeholder="Type here...")
+    submitted = st.form_submit_button("")
 
-    if mode == "teach":
-        result = teach_mode(query, system_files, generate_answer)
-    else:
-        result = "Tool mode not wired here yet"
 
-    st.session_state.output = result
+# -----------------------------
+# PROCESS INPUT
+# -----------------------------
+if submitted and user_input.strip():
+    query = user_input.strip()
 
+    # 🔧 Replace this with your backend later
+    with st.spinner("Thinking..."):
+        print("DEBUG: BEFORE pipeline")
+
+        response = run_pipeline(query)
+
+        print("DEBUG: AFTER pipeline:", response)
+
+    # Append to output
+    st.session_state.output += f"\n\n> {query}\n{response}"

@@ -15,3 +15,20 @@ venv/
 # Optional: keep or remove depending on your preference
 # learned_knowledge.json
 # memory.json
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+
+# Data / generated files
+*.npy
+*.db
+
+# Audio
+*.wav
+
+# Your system runtime files
+logs.jsonl
+memory_experience.json

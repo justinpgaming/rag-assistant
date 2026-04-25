@@ -222,3 +222,112 @@ PRIORITY GOAL
 1. Finalize DEBUG mode
 2. Finalize TEACH mode
 3. Then refactor and expand system
+
+
+# 🧩 Debug Mode — Structured Input Design
+
+## 📌 Purpose
+
+Define a strict, predictable input structure for debug mode to eliminate ambiguity and ensure reliable behavior.
+
+---
+
+## 🧠 Core Principle
+
+> If input is not properly structured, debug mode will NOT execute.
+
+---
+
+## 🔀 Debug Input Paths
+
+### ✅ Path A — Manual Code Mode
+
+Used when debugging isolated or external code.
+
+Format:
+
+```
+/debug
+[CODE]
+<code snippet>
+END
+```
+
+Rules:
+
+* Overrides all other requirements
+* No need for `[ERROR]`, `[FILE]`, or `[LINE]`
+* System uses provided code directly
+
+---
+
+### ✅ Path B — File-Based Debug Mode
+
+Used for debugging code within system files.
+
+Format:
+
+```
+/debug
+[ERROR] <error message>
+[FILE: <filename>]
+[LINE: <line number>]
+END
+```
+
+Rules:
+
+* ALL fields are required
+* Missing any field → reject execution
+* System will later:
+
+  * load file
+  * extract surrounding lines
+  * build context automatically
+
+---
+
+## ❌ Invalid Input Handling
+
+If required fields are missing:
+
+Example response:
+
+```
+❌ Missing required fields:
+- [ERROR]
+- [FILE:]
+- [LINE:]
+
+Provide required information before running debug.
+```
+
+---
+
+## 🧠 Design Intent
+
+* Eliminate guesswork
+* Prevent incorrect debug analysis
+* Reduce need for manual code copy/paste
+* Ensure consistent, structured inputs for future automation
+
+---
+
+## 🔮 Future Expansion
+
+Planned additions:
+
+* Automatic file context extraction (lines around error)
+* Optional `[CODE]` override even in file mode
+* GUI form input mapping to this structure
+* Integration with command builder (natural language → structured input)
+
+---
+
+## ⚠️ Important Constraint
+
+This structure will become part of the system's internal API.
+
+All future systems (CLI, GUI, automation) must conform to this format.
+
+---

@@ -225,27 +225,33 @@ def run_pipeline(query, *args, **kwargs):
     # -----------------------------
     # 🔥 HARD DEBUG OVERRIDE (TOP PRIORITY)
     # -----------------------------
+    print("RAW INPUT:", query)
+
     if query.strip().startswith("/debug"):
+        print("DEBUG ROUTE TRIGGERED")
         print("FORCED DEBUG MODE")
 
         from llm import generate_answer
         from debug_mode import run_debug_mode
 
         return run_debug_mode(query, generate_answer)
-    chunks = []
-    task_type = classify_task(query)
 
-    if mode == "tool":
-        return run_tool_mode(query, chunks, task_type)
+        # This block is deprecated — execution handled earlier
+pass
+#    chunks = []
+#    task_type = classify_task(query)
 
-    elif mode == "teach":
-        return teach_mode(query, ["tool_validator.py"], generate_answer)
+#    if mode == "tool":
+#        return run_tool_mode(query, chunks, task_type)
 
-    elif mode == "debug":
-        return "Debug mode not implemented yet"
+#    elif mode == "teach":
+#        return teach_mode(query, ["tool_validator.py"], generate_answer)
 
-    else:
-        return "Unknown mode"
+#    elif mode == "debug":
+#        return "Debug mode not implemented yet"
+
+#    else:
+#        return "Unknown mode"
 
 
 def main():
@@ -300,12 +306,14 @@ def main():
         # -----------------------------
         # MANUAL MODE OVERRIDE (PRIORITY)
         # -----------------------------
-        if query.startswith("/debug"):
+        first_line = query.strip().split("\n")[0]
+
+        if first_line.startswith("/debug"):
             from debug_mode import run_debug_mode
 
             result = run_debug_mode(query, generate_answer)
             print(result)
-            return
+            continue
 
         elif query.startswith("/run"):
             mode = "tool"
@@ -453,7 +461,6 @@ def main():
         # -----------------------------
         # FOCUS SYSTEM
         # -----------------------------
-
 
         # -----------------------------
         # FOCUS SYSTEM (DISABLED)

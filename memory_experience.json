@@ -719,6 +719,31 @@
       "step": "Straighten living room furniture to remove wrinkles.",
       "reason": "multiple actions",
       "task_type": "general"
+    },
+    {
+      "step": "Exit the room.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "End the task.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "End the process.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Terminate the sequence.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Finish the operation.",
+      "reason": "too short",
+      "task_type": "general"
     }
   ],
   "patterns": {
@@ -1325,6 +1350,14 @@
     {
       "step": "Wipe down kitchen counters with damp cloth.",
       "task_type": "general"
+    },
+    {
+      "step": "Wipe down the desk surface using a damp cloth.",
+      "task_type": "general"
+    },
+    {
+      "step": "Place books from the desk onto the bookshelf.",
+      "task_type": "general"
     }
   ],
   "corrections": [
@@ -1358,6 +1391,6 @@
   ],
   "meta": {
     "version": 1,
-    "last_updated": 1777086994.5083811
+    "last_updated": 1777159038.484275
   }
 }

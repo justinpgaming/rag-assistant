@@ -7,63 +7,85 @@
 Run a task:
 
 /run clean my room
+END
 
 ---
 
 ## 🐞 DEBUG MODE
 
-### Basic Debug (no code)
+### ⚠️ REQUIRED STRUCTURE
 
-Use when describing a problem:
-
-/debug my validator crashes on empty input
-
----
-
-### Code Debug (IMPORTANT)
-
-Use this exact structure:
-
-/debug
-
-[FILE: filename.py]
-
-<PASTE YOUR CODE HERE>
+Command MUST be first line.
+END is REQUIRED.
 
 ---
 
-### Code Debug with Error (BEST)
+### Basic Debug (structured)
+
+Use when you have an error:
 
 /debug
+[ERROR] your error message here
+END
 
+---
+
+### Debug with File (recommended)
+
+/debug
+[ERROR] your error message here
 [FILE: filename.py]
+END
 
-<PASTE YOUR CODE HERE>
+---
 
-[ERROR]
-<PASTE ERROR MESSAGE HERE>
+### Debug with File + Line (BEST)
+
+/debug
+[ERROR] your error message here
+[FILE: filename.py]
+[LINE: 42]
+END
+
+---
+
+### ⚠️ Code Debug (Optional)
+
+Only use when debugging code NOT in your system files:
+
+/debug
+[FILE: temp_code.py]
+
+<PASTE CODE HERE>
+
+[ERROR] your error message
+END
 
 ---
 
 ## 🎓 TEACH MODE (WIP)
 
-(Will explain what happened in last run)
+/teach
+END
 
 ---
 
 ## ⚠️ RULES
 
-- ALWAYS use `[FILE: filename.py]`
-- NEVER skip the FILE label
-- Keep code cleanly pasted
-- Add [ERROR] when possible
+* Command MUST be first line
+* ALWAYS end input with `END`
+* `[ERROR]` is strongly recommended
+* `[FILE: filename.py]` is optional but helpful
+* `[LINE: number]` improves accuracy
+* Do NOT put anything before `/debug`, `/run`, etc.
 
 ---
 
 ## 💡 TIPS
 
-- Copy → paste → modify → run
-- Do NOT type commands from memory
-- Structure matters more than wording
+* Copy → paste → modify → run
+* Do NOT type commands from memory
+* Structure matters more than wording
+* If something fails, check command is on first line
 
 ---

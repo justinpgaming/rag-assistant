@@ -1,220 +1,88 @@
-# 🧠 SYSTEM ARCHITECTURE (LOCKED DESIGN)
+# 🧱 Development Rules (CRITICAL)
 
-## 🔥 CORE PRINCIPLE
+## ❗ Absolute Rules
 
-This system is NOT a single assistant with multiple behaviors.
+1. NEVER assume user knowledge
+2. ALWAYS provide:
 
-It is:
-
-ONE INTERFACE → ROUTES TO MULTIPLE SPECIALIZED SYSTEMS
-
----
-
-## 🧠 CONTROL RULES (CRITICAL)
-
-The system must always control the LLM.
+   * file name
+   * exact location
+   * exact code block
+3. NEVER give partial instructions
+4. ALWAYS preserve indentation
+5. NEVER restructure code unless explicitly requested
 
 ---
 
-### RULE 1: LLM IS NOT TRUSTED
+## 🧠 Teaching Style Required
 
-* Never accept raw LLM output as final
-* Always pass through validation + evaluation
-
----
-
-### RULE 2: SYSTEM DECIDES FINAL OUTPUT
-
-* LLM generates candidates
-* System enforces correctness
-* System chooses final result
+* Step-by-step
+* Clear reasoning
+* No skipped logic
+* Explain *why*, not just *what*
 
 ---
 
-### RULE 3: NO BYPASSING PIPELINE
+## 🔧 Code Change Rules
 
-The following pipeline is mandatory:
+When modifying code:
 
-generate → validate → evaluate → correct → rebuild
-
-No step may be skipped.
-
----
-
-### RULE 4: WEAK MODELS MUST STILL WORK
-
-The system must be strong enough that:
-
-* even a weak LLM produces acceptable output
-
-If output quality depends on model strength, the system is too weak.
-
-
-## 🧩 HIGH-LEVEL ARCHITECTURE
-
-```
-MAIN INTERFACE (CLI)
-        │
-        ▼
-   TASK ROUTER
-(classify + decide)
-        │
- ┌──────┼────────┬────────┐
- ▼      ▼        ▼        ▼
-TOOL   TEACH    THINK    (future systems)
-SYSTEM SYSTEM   SYSTEM
-```
+* Show BEFORE
+* Show AFTER
+* Keep context small
+* Do NOT reformat unrelated code
 
 ---
 
-## 🧠 SYSTEM DEFINITIONS
+## ⚠️ Copy/Paste Constraints
 
-### 1. TOOL SYSTEM (CURRENT FOCUS)
+User experiences:
 
-Purpose:
+* indentation breaking on paste
+* needs manual tab correction
 
-* Execute real-world tasks
-* Produce structured step-by-step output
+Therefore:
 
-Characteristics:
-
-* Strict rules
-* Validation enforced
-* Correction system active
-* Scoring system (evaluate_step)
-
-Pipeline:
-LLM → validate → evaluate → correct → rebuild → output
+* Keep blocks minimal
+* Avoid deeply nested examples
+* Warn when indentation matters
 
 ---
 
-### 2. TEACH SYSTEM (PLANNED)
+## 🧪 Debugging Rules
 
-Purpose:
+When error appears:
 
-* Explain system behavior
-* Guide development
-* Analyze failures
-
-Characteristics:
-
-* Reads system state (files, logs, memory)
-* Not bound by strict step formatting
-* Focused on clarity + guidance
-
-Pipeline:
-system data → analyze → LLM explanation → output
+1. Identify exact cause
+2. Explain simply
+3. Show exact fix
+4. Specify file + placement
+5. Provide minimal working code
 
 ---
 
-### 3. THINK SYSTEM
+## 🔄 Workflow Rules
 
-Purpose:
-
-* General reasoning
-* Problem solving
-* Concept explanation
-
-Characteristics:
-
-* Step breakdowns allowed
-* No strict validation
-* Flexible output
+* Commit before risky changes
+* Test after each change
+* Prefer small steps over large rewrites
 
 ---
 
-## 🔥 CRITICAL DESIGN RULE
+## 🚫 Avoid
 
-Modes are NOT just prompt changes.
-
-Modes determine WHICH SYSTEM runs.
-
-### DOMAIN RULES
-
-Domains must be configurable, not hardcoded.
-
-DO:
-
-* define domain-specific verbs
-* define domain templates
-* plug in knowledge sources
-
-DO NOT:
-
-* modify core validation logic
-* create domain-specific pipelines
-
+* Abstract explanations without grounding
+* Large rewrites
+* “just fix it like this” responses
+* Hidden assumptions
 
 ---
 
-## 🧠 MEMORY SEPARATION (MANDATORY)
+## ✅ Preferred Style
 
-### memory.json
-
-Represents:
-
-* User goals
-* Ideas
-* Decisions
-
-Meaning:
-WHAT THE USER KNOWS / WANTS
+* Structured
+* Predictable
+* Explicit
+* Repeatable
 
 ---
-
-### memory_experience.json
-
-Represents:
-
-* Failures
-* Corrections
-* Scores
-* Patterns
-
-Meaning:
-HOW THE SYSTEM LEARNS
-
----
-
-## ⚠️ NEVER MIX THESE
-
-memory ≠ experience_memory
-
----
-
-## 🔧 CURRENT IMPLEMENTATION STATE
-
-✔ Tool system active
-✔ Validation system built
-✔ Correction system in progress
-✔ Evaluation system being integrated
-
----
-
-## 🚀 FUTURE EXPANSION PLAN
-
-Phase 1:
-
-* Finalize tool system (strict + reliable)
-
-Phase 2:
-
-* Extract tool system into module
-
-Phase 3:
-
-* Implement router
-
-Phase 4:
-
-* Build teach system separately
-
----
-
-## 🧠 FINAL MENTAL MODEL
-
-memory = WHAT I KNOW
-experience_memory = HOW I LEARN
-
-mode = WHICH SYSTEM RUNS
-NOT how one system behaves

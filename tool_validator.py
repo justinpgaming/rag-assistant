@@ -1,6 +1,9 @@
 import re
 
 from memory_experience import log_correction
+from prompt import GLOBAL_PROMPT
+
+REDUNDANT_PATTERNS = []
 
 # -------------------------
 # CONSTANTS
@@ -125,6 +128,8 @@ FIX_GUIDE = {
 
 def build_correction_prompt(step_text: str, reason: str):
     return f"""
+{GLOBAL_PROMPT}
+
 Rewrite this step into a single, clear physical action.
 
 STRICT RULES (MUST FOLLOW):
@@ -136,6 +141,14 @@ STRICT RULES (MUST FOLLOW):
 - Do NOT use weak verbs like: organize, tidy, straighten, arrange
 - Use a specific object (no "items", "things", "stuff")
 - The action must be physically doable in one motion
+- You must preserve the original meaning and object of the step
+- You must NOT simplify to generic actions unless required by rules
+- The corrected step must reflect the SAME task intent as the original
+
+When correcting:
+- If the original step contains multiple actions, reduce it to the FIRST atomic physical action only
+- Do NOT invent unrelated actions
+- Transform verbs to the closest allowed physical equivalent
 
 FORMAT RULES:
 - Output ONLY one sentence
@@ -149,7 +162,10 @@ BAD EXAMPLES (DO NOT DO):
 - "Organize items on the desk"
 
 GOOD EXAMPLES:
-- "Pick up clothes from the floor and place them in the laundry hamper"  ← ❌ (still bad, shows why multi-action is wrong)
+BAD EXAMPLES (DO NOT DO):
+- "Pick up clothes and put them away"
+- "Straighten and arrange bedding"
+- "Organize items on the desk"
 - "Pick up clothes from the floor"  ← ✅
 - "Place books onto the bookshelf"  ← ✅
 - "Vacuum the carpet to remove dirt"  ← ✅
@@ -222,7 +238,7 @@ def evaluate_step(step, original_step):
 # -------------------------
 
 
-def validate_tool_output(text: str):
+def validate_tool_output(text: str, domain: str = "cleaning"):
     lines = [line.strip() for line in text.split("\n") if line.strip()]
 
     if not lines:
@@ -311,6 +327,7 @@ def validate_steps(steps, task_type=None):
 
         valid = True
         reason = None
+        needs_decomposition = False
 
         # -------------------------
         # INVALID ACTION COMBO
@@ -349,6 +366,7 @@ def validate_steps(steps, task_type=None):
         if valid and any(w in words for w in WEAK_VERBS):
             valid = False
             reason = "weak verb"
+            needs_decomposition = True
 
         if valid and any(w in words for w in VAGUE_WORDS):
             valid = False
@@ -397,6 +415,7 @@ def validate_steps(steps, task_type=None):
                 "text": text,
                 "valid": valid,
                 "reason": reason,
+                "needs_decomposition": needs_decomposition,
             }
         )
 
@@ -471,24 +490,27 @@ def correct_step(
     step_text: str, reason: str, llm_call_fn, experience_memory, task_type=None
 ):
 
+    corrected = None
+    corrected_retry = None
+
     print("🔍 START:", step_text)
     prompt = build_correction_prompt(step_text, reason)
 
     # -------------------------
     # FIRST ATTEMPT
     # -------------------------
-    corrected = llm_call_fn(prompt)
+    corrected_raw = llm_call_fn(prompt)
 
     # print("\n🔧 RAW CORRECTION:", corrected)
 
-    if not corrected:
+    if corrected is None:
         return step_text
 
     # -------------------------
     # CLEAN RAW OUTPUT (MUST BE AFTER CHECK)
     # -------------------------
-    lines = [l.strip() for l in corrected.split("\n") if l.strip()]
-    cleaned = lines[-1] if lines else ""
+    lines = [l.strip() for l in corrected_raw.split("\n") if l.strip()]
+    cleaned = next((l for l in reversed(lines) if len(l.split()) >= 2), "")
     lowered = cleaned.lower()
 
     # -------------------------
@@ -501,8 +523,8 @@ def correct_step(
     # -------------------------
     if score < 70:
         retry_prompt = (
-            prompt + f"\n\nYour previous attempt scored {score}/100.\n"
-            "Improve it. Make it more specific, more physical, and follow ALL rules strictly."
+            prompt
+            + "\n\nFix ONLY validator-reported issues. Do not improve wording or add information."
         )
 
         corrected_retry = llm_call_fn(retry_prompt)
@@ -640,7 +662,7 @@ def apply_step_corrections(steps, validation_results, llm_call_fn, experience_me
         # FIRST CORRECTION ATTEMPT
         # -------------------------
         fixed = correct_step(
-            step_text,
+            f"[STEP {step['index']}] {step_text}",
             result["reason"],
             llm_call_fn,
             experience_memory,
@@ -681,13 +703,13 @@ def apply_step_corrections(steps, validation_results, llm_call_fn, experience_me
                     fixed = improved
                     score = retry_score
                     fixed_eval = retry_eval
-
+        needs_decomposition = result.get("needs_decomposition", False)
         # -------------------------
         # DECISION BLOCK
         # -------------------------
         orig = step_text
 
-        # HARD RULE: never allow multi-action
+        # HARD RULE: never allow multi-action to block correction
         if result["reason"] == "multiple actions":
             final = fixed
 

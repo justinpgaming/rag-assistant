@@ -37,6 +37,10 @@ from memory_experience import (
     load_experience_memory,
 )
 
+from tool_sanity import sanity_check_tool_output
+from domain_router import route_domain
+from debug_mode import run_debug_mode
+
 from teach_mode import teach_mode
 import time
 import re
@@ -75,113 +79,50 @@ def stream_response(prompt, mode):
 
 
 def run_tool_mode(query, chunks, task_type):
-    output = ""
+    # --- DOMAIN ROUTING (NEW) ---
+    domain = route_domain(query)
+    print(f"[DOMAIN] {domain}")
+
     attempts = 0
     max_attempts = 3
 
+
+    # --- DOMAIN BEHAVIOR CONTROL (NEW) ---
+    if domain == "debug":
+        print("[ROUTE] Redirecting to debug mode")
+        return run_debug_mode(query, generate_answer)
+
     while attempts < max_attempts:
+        attempts += 1
+
         prompt = build_prompt(query, chunks, "tool", task_type=task_type)
         response_text = stream_response(prompt, "tool")
 
-        # -----------------------------
-        # STRUCTURE VALIDATION (GATE)
-        # -----------------------------
+        # STRUCTURE VALIDATION
         valid_structure, reason = validate_tool_output(response_text)
 
         if not valid_structure:
             print(f"\n❌ STRUCTURE FAILURE: {reason}")
             print("❌ Output rejected — invalid tool format\n")
-
             return "[ERROR] Invalid tool output structure"
 
-        output += "RAW OUTPUT:\n"
-        output += response_text + "\n"
-
-        # -----------------------------
         # STEP PARSING
-        # -----------------------------
         steps = step_parser(response_text)
 
-        # -----------------------------
         # STEP VALIDATION
-        # -----------------------------
         results = validate_steps(steps, task_type)
 
         print("DEBUG results:", results)
-        print("TYPE:", type(results))
 
         has_invalid = any(not r["valid"] for r in results)
 
-        # -----------------------------
-        # 🧠 EXPERIENCE MEMORY LOGGING
-        # -----------------------------
+        # EXPERIENCE MEMORY
         experience_memory = load_experience_memory()
-
         log = {"task_type": task_type, "validation": results}
-
         experience_memory = update_memory_from_log(log, experience_memory)
         save_experience_memory(experience_memory)
 
-        print("\n🧠 EXPERIENCE MEMORY STATS")
-        print("Failures:", len(experience_memory["failures"]))
-        print("Successes:", len(experience_memory["successes"]))
-
-
-def run_tool_mode(query, chunks, task_type):
-    output = ""
-    attempts = 0
-    max_attempts = 3
-
-    while attempts < max_attempts:
-        prompt = build_prompt(query, chunks, "tool", task_type=task_type)
-        response_text = stream_response(prompt, "tool")
-
-        # -----------------------------
-        # STRUCTURE VALIDATION (GATE)
-        # -----------------------------
-        valid_structure, reason = validate_tool_output(response_text)
-
-        if not valid_structure:
-            print(f"\n❌ STRUCTURE FAILURE: {reason}")
-            print("❌ Output rejected — invalid tool format\n")
-
-            return "[ERROR] Invalid tool output structure"
-
-        output += "RAW OUTPUT:\n"
-        output += response_text + "\n"
-
-        # -----------------------------
-        # STEP PARSING
-        # -----------------------------
-        steps = step_parser(response_text)
-
-        # -----------------------------
-        # STEP VALIDATION
-        # -----------------------------
-        results = validate_steps(steps, task_type)
-
-        print("DEBUG results:", results)
-        print("TYPE:", type(results))
-
-        has_invalid = any(not r["valid"] for r in results)
-
-        # -----------------------------
-        # 🧠 EXPERIENCE MEMORY LOGGING
-        # -----------------------------
-        experience_memory = load_experience_memory()
-
-        log = {"task_type": task_type, "validation": results}
-
-        experience_memory = update_memory_from_log(log, experience_memory)
-        save_experience_memory(experience_memory)
-
-        print("\n🧠 EXPERIENCE MEMORY STATS")
-        print("Failures:", len(experience_memory["failures"]))
-        print("Successes:", len(experience_memory["successes"]))
-
-        # -----------------------------
         # WORKFLOW CHECK
-        # -----------------------------
         workflow_warnings = check_workflow(steps)
 
         if not has_invalid:
@@ -195,15 +136,8 @@ def run_tool_mode(query, chunks, task_type):
 
             final_output = rebuild_output(corrected_steps)
 
-        # -----------------------------
-        # REBUILD OUTPUT
-        # -----------------------------
-        response_text = rebuild_output(corrected_steps)
-
-        # -----------------------------
-        # FINAL WORKFLOW CHECK
-        # -----------------------------
-        final_steps = step_parser(response_text)
+        # FINAL CHECK
+        final_steps = step_parser(final_output)
 
         print("\n--- FINAL STEPS FOR WORKFLOW ---")
         for s in final_steps:
@@ -216,7 +150,23 @@ def run_tool_mode(query, chunks, task_type):
             for w in workflow_warnings:
                 print(f"- {w}")
 
-        return response_text
+        # -----------------------------
+        # FINAL SANITY CHECK
+        # -----------------------------
+        if domain == "cleaning":
+            is_valid, reason = sanity_check_tool_output(final_output, task_type)
+        else:
+            is_valid, reason = True, None
+
+        if not is_valid:
+            print(f"\n🚨 SANITY CHECK FAILED: {reason}")
+
+            # Optional fallback
+            return "[ERROR] Tool output failed final validation"
+
+        print("✅ SANITY CHECK PASSED")
+
+        return final_output
 
 
 def run_pipeline(query, *args, **kwargs):
@@ -237,6 +187,8 @@ def run_pipeline(query, *args, **kwargs):
         return run_debug_mode(query, generate_answer)
 
         # This block is deprecated — execution handled earlier
+
+
 pass
 #    chunks = []
 #    task_type = classify_task(query)
@@ -441,7 +393,22 @@ def main():
             words = set(re.findall(r"\b\w+\b", task.lower()))
 
             has_vague = words & vague_terms
-            has_action = any(w in words for w in ["clean", "organize", "setup", "fix"])
+            has_action = any(
+                w in words
+                for w in [
+                    "clean",
+                    "organize",
+                    "setup",
+                    "fix",
+                    "debug",
+                    "analyze",
+                    "build",
+                    "create",
+                    "inspect",
+                    "trace",
+                    "repair",
+                ]
+            )
             has_object = len(words) >= 2
 
             if has_vague or not (has_action and has_object):
@@ -512,7 +479,10 @@ def main():
         # EXECUTION
         # -----------------------------
         if mode == "tool":
+            print("DEBUG: entering tool mode")
             response_text = run_tool_mode(query, chunks, task_type)
+            print("DEBUG: tool mode finished")
+        #            response_text = run_tool_mode(query, chunks, task_type)
         else:
             prompt = build_prompt(query, chunks, mode, task_type=task_type)
             response_text = stream_response(prompt, mode)

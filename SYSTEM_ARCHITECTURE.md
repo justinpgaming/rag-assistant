@@ -1,333 +1,223 @@
-# 🧭 SYSTEM ARCHITECTURE
+🧭 SYSTEM ARCHITECTURE (CLEAN & ALIGNED)
+🧠 1. Core Mental Model
 
----
+This system is a:
 
-## 🧠 Core Structure
+Structured task execution engine
 
-User Input
-   ↓
-Router
-   ↓
-Mode
-   ↓
-Mode Pipeline
-   ↓
-Output
+It:
 
----
+Takes user input
+Converts it into structured steps
+Validates those steps
+Corrects mistakes
+Returns clean, usable output
+🔑 Key Idea
 
-## 🧩 Modes
+The system is NOT “just an AI”
 
-### Tool Mode
-- Step-by-step execution
-- Strict validation
-- Minecraft-focused
+It is:
 
-Pipeline:
-LLM → parser → validator → correction → scoring → output
+Controlled Pipeline + Rules + Correction + Memory
+🔌 2. Entry Layer (EXTERNAL)
+User → Interface (CLI / UI) → System Input
+Explanation:
+The interface (CLI, Streamlit, etc.) collects input
+Then passes it into the system
+The system starts at input
 
----
+⚠️ This layer is NOT part of internal logic
+⚠️ It can be changed without breaking the system
 
-### Teach Mode
-- Explanation + debugging
-- Step-by-step reasoning
-- No strict validation
+🧠 3. Input Interpretation Layer (FUTURE)
+raw input → structured command
+Purpose:
 
----
+Convert natural language into structured system commands
 
-### Fast Mode
-- Direct answers
-- No processing pipeline
+Example:
 
----
+Input:
 
-## 🔌 Modularity Rules
+fix syntax error on line 24 in validate_tool.py
 
-- Each mode is standalone
-- No cross-mode dependency
-- Modes can be removed without breaking system
+Becomes:
 
----
+/debug
+[ERROR] syntax error
+[FILE: validate_tool.py]
+[LINE: 24]
+END
+Responsibilities:
+Detect intent (debug vs task)
+Extract key data (file, line, error)
+Build structured command
+Reject incomplete input
+Status:
 
-## 🧠 Responsibility Separation
+❌ Not implemented yet
+⚠️ DO NOT build yet
 
-LLM → generates  
-Validator → enforces rules  
-Scoring → ranks quality  
+🧭 4. Command Router (EXISTS)
+input → command router → mode
+Purpose:
 
-NEVER mix these roles
+Determine which mode to run
 
----
+Current Behavior:
+/run → Tool Mode
+/debug → Debug Mode
+Important:
 
-## ⚠️ Constraint Handling Rule
+This router:
 
-Logical instruction:
-❌ "do not connect"
+DOES NOT understand tasks
+ONLY selects execution mode
+🧠 5. Domain Router (MISSING – NEXT STEP)
+task → domain → correct logic
+Purpose:
 
-Physical instruction:
-✅ "leave gap" / "place block"
+Ensure correct logic is applied to the correct task type
 
----
+Example:
+"clean room" → cleaning domain
+"fix python error" → debug domain
+"build redstone" → minecraft domain
+Why This Is Critical:
 
-## 🚀 Expansion Path
+Without this:
 
-- Add new modes without touching existing ones
-- Extend Tool Mode with Minecraft knowledge
-- Introduce RAG later for domain knowledge
+❌ Cleaning logic affects everything
+❌ Validator rejects valid non-cleaning tasks
+❌ Correction becomes incorrect
 
-from here on is called the "new version"  but the format is changed so i kept the old above it just in case... too many times far too much information
-was missed, not passed along, and things broke, costing hours of debugging etc.
+Status:
 
-SYSTEM: RAG TASK EXECUTION ASSISTANT
+❌ Not implemented
+🎯 NEXT MAJOR MILESTONE
 
-USER SKILL LEVEL:
-- Beginner
-- Cannot reliably infer missing steps
-- Requires explicit, precise instructions
-- Vague guidance WILL break the system
+🧩 6. Modes (HOW the system runs)
 
-CORE RULE:
-- Never assume the user understands implied steps
-- Always give exact placement, exact code, exact changes
+Modes control execution style, not logic.
 
-
-----------------------------------------
-SYSTEM PURPOSE
-----------------------------------------
-
-Generate structured, step-by-step physical task workflows.
-
-Then:
-- Validate each step
-- Correct invalid steps
-- Ensure logical workflow order
-- Provide clean final output
-
-System evolves through:
-- validation rules
-- correction logic
-- experience memory
-
-
-----------------------------------------
-MODES
-----------------------------------------
-
-TOOL MODE:
-- Outputs final cleaned steps only
-- No explanations
-
-DEBUG MODE:
-- Shows internal pipeline stages
-- Used for development and troubleshooting
-
-TEACH MODE:
-- Explains what happened during THIS run
-- Shows:
-  - raw model output
-  - validation results
-  - corrections applied
-  - final output
-  - workflow issues
-- Does NOT modify logic
-
-
-----------------------------------------
-PIPELINE FLOW
-----------------------------------------
-
+🔧 Tool Mode (PRIMARY)
+structured execution pipeline
+Generates steps
+Validates steps
+Corrects steps
+Returns final output
+🐛 Debug Mode
+error analysis pipeline
+Parses structured debug input
+Extracts file + line context
+Analyzes error
+📚 Teach Mode (PARTIAL)
+explanation layer
+Shows:
+model output
+validation results
+corrections
+Does NOT change logic
+⚠️ Key Distinction
+Type	Purpose
+Domain	WHAT logic runs
+Mode	HOW it runs
+🔁 7. Tool Mode Pipeline (CURRENT CORE)
 input
-→ prompt generation
-→ LLM output
-→ step parsing
-→ step validation
-→ correction (if needed)
-→ rebuild output
-→ workflow check
-→ final output
-
-
-----------------------------------------
-VALIDATION PRINCIPLES
-----------------------------------------
-
-- One step = one action
-- No vague wording
-- No weak verbs
-- No impossible actions
-- No multi-action chaining
-
-Validation MUST NOT:
-- Overcorrect
-- Conflict with itself
-- Duplicate logic
-
-
-----------------------------------------
-CORRECTION PRINCIPLES
-----------------------------------------
-
-- Fix only what is invalid
-- Do not introduce new errors
-- Prefer simple, physical actions
-- Use controlled verb set
-
-Correction is NOT validation
-
-
-----------------------------------------
-WORKFLOW PRINCIPLES
-----------------------------------------
-
-- Steps must follow logical order
-- No backward actions (e.g. cleaning before pickup)
-- No redundant work
-
-
-----------------------------------------
-CURRENT SYSTEM STATE
-----------------------------------------
-
-- Validator: being cleaned (removing rule conflicts)
-- Correction: functional, improving
-- Workflow checker: active
-- Debug mode: being structured
-- Teach mode: partially implemented
-
-
-----------------------------------------
-DEVELOPMENT RULES
-----------------------------------------
-
-- NEVER add duplicate validation rules
-- NEVER mix validation and correction logic
-- NEVER use vague instructions when modifying code
-- ALWAYS specify exact insertion points
-- ALWAYS test after changes
-
-
-----------------------------------------
-KNOWN RISKS
-----------------------------------------
-
-- Large files (~18k lines) make debugging difficult
-- Copy/paste errors frequently break structure
-- Small indentation errors can break execution
-
-
-----------------------------------------
-PRIORITY GOAL
-----------------------------------------
-
-1. Finalize DEBUG mode
-2. Finalize TEACH mode
-3. Then refactor and expand system
-
-
-# 🧩 Debug Mode — Structured Input Design
-
-## 📌 Purpose
-
-Define a strict, predictable input structure for debug mode to eliminate ambiguity and ensure reliable behavior.
-
----
-
-## 🧠 Core Principle
-
-> If input is not properly structured, debug mode will NOT execute.
-
----
-
-## 🔀 Debug Input Paths
-
-### ✅ Path A — Manual Code Mode
-
-Used when debugging isolated or external code.
-
-Format:
-
-```
+ → prompt generation
+ → LLM output
+ → step parsing
+ → step validation
+ → correction
+ → retry loop
+ → final output
+Components:
+1. Prompt Generator
+Builds instructions for LLM
+2. Step Parser
+Converts text → structured steps
+3. Validator
+Enforces rules
+Detects invalid steps
+4. Correction Loop
+Fixes invalid steps
+Re-runs when needed
+5. Retry Loop
+Retries full pipeline (max 2–3)
+6. Experience Memory
+Logs outcomes for learning
+🧪 8. Debug Mode Flow
+structured debug input
+ → parse fields
+ → load file context
+ → analyze error
+ → return explanation
+Input Requirements:
 /debug
-[CODE]
-<code snippet>
+[ERROR] ...
+[FILE: ...]
+[LINE: ...]
 END
-```
+Behavior:
+Rejects missing fields
+Does NOT guess missing data
+Uses structured input only
+🧱 9. System Control Flow (FULL VIEW)
+User Input
+ → (future) Input Interpreter
+ → Command Router
+     → Tool Mode
+         → (future) Domain Router
+             → Tool Pipeline
+     → Debug Mode
+         → Debug Pipeline
+ → Output
+⚠️ 10. Current Limitations
+1. No Domain Routing
+All tasks use cleaning logic
+2. Validator Bias
+Overfitted to cleaning domain
+3. Correction Instability
+Not domain-aware
+4. Input Fragility
+Requires structured commands manually
+🎯 11. Current Development Phase
+Phase 1: Pipeline Stability ✅
+Phase 2: Domain Control ← CURRENT
+Phase 3: Intelligence (future)
+🚫 12. What NOT To Do (Right Now)
+Do NOT expand validator rules
+Do NOT add more retry systems
+Do NOT optimize prompts
+Do NOT build input interpreter yet
+🎯 13. Immediate Next Step
+👉 Implement Domain Router
 
-Rules:
+Goal:
 
-* Overrides all other requirements
-* No need for `[ERROR]`, `[FILE]`, or `[LINE]`
-* System uses provided code directly
+cleaning → cleaning logic
+debug → debug logic
+minecraft → future
+🚀 14. Future Expansion (Controlled)
+After Domain Control:
+Domain-specific validators
+Domain-specific correction logic
+Input interpreter
+Teach mode completion
+RAG knowledge integration
+🧠 Final Principle
 
----
+The system must remain controlled before it becomes intelligent
 
-### ✅ Path B — File-Based Debug Mode
+✅ Summary
 
-Used for debugging code within system files.
+The system is:
 
-Format:
+✔ Structured
+✔ Functional
+✔ Stable
 
-```
-/debug
-[ERROR] <error message>
-[FILE: <filename>]
-[LINE: <line number>]
-END
-```
+But:
 
-Rules:
-
-* ALL fields are required
-* Missing any field → reject execution
-* System will later:
-
-  * load file
-  * extract surrounding lines
-  * build context automatically
-
----
-
-## ❌ Invalid Input Handling
-
-If required fields are missing:
-
-Example response:
-
-```
-❌ Missing required fields:
-- [ERROR]
-- [FILE:]
-- [LINE:]
-
-Provide required information before running debug.
-```
-
----
-
-## 🧠 Design Intent
-
-* Eliminate guesswork
-* Prevent incorrect debug analysis
-* Reduce need for manual code copy/paste
-* Ensure consistent, structured inputs for future automation
-
----
-
-## 🔮 Future Expansion
-
-Planned additions:
-
-* Automatic file context extraction (lines around error)
-* Optional `[CODE]` override even in file mode
-* GUI form input mapping to this structure
-* Integration with command builder (natural language → structured input)
-
----
-
-## ⚠️ Important Constraint
-
-This structure will become part of the system's internal API.
-
-All future systems (CLI, GUI, automation) must conform to this format.
-
----
+❌ Not domain-aware
+❌ Not flexible yet

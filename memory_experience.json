@@ -744,6 +744,121 @@
       "step": "Finish the operation.",
       "reason": "too short",
       "task_type": "general"
+    },
+    {
+      "step": "Move clothes from the floor onto the laundry hamper.",
+      "reason": "too short",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items on surfaces.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Check and restart the development environment.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Review system logs for any error messages or exceptions.",
+      "reason": "vague wording",
+      "task_type": "general"
+    },
+    {
+      "step": "Verify that all dependencies are properly installed.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Re-run the validation script to test its functionality.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "If issues persist, try updating the validator software.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Pick up debugging tools and place them on a clean surface.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Move validator code into an isolated environment.",
+      "reason": "too short",
+      "task_type": "general"
+    },
+    {
+      "step": "Crash the test run to isolate issues.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Run a debug log to identify specific errors.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Return to the main program flow after resolving crashes.",
+      "reason": "multiple actions",
+      "task_type": "general"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth, starting with the desk and working clockwise around the room.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return items to their correct locations, such as putting away clothes in the dresser or closet.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth, including nightstands, lamps, and any other surface that needs attention.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items on shelves, dressers, and tables.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Sweep the floor to remove dust and dirt.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Vacuum the carpet to remove dirt and debris.",
+      "reason": "invalid action combination",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Arrange books and other misplaced items in their correct locations.",
+      "reason": "vague wording",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Straighten and arrange visible items on the bed.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Make sure everything is in its place and arranged neatly.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books to the bookshelf and place them neatly.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth, including the nightstand and dresser.",
+      "reason": "multiple actions",
+      "task_type": "cleaning"
     }
   ],
   "patterns": {
@@ -1358,6 +1473,90 @@
     {
       "step": "Place books from the desk onto the bookshelf.",
       "task_type": "general"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Return books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the floor onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Place books from the desk onto the bookshelf.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down furniture surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the room.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Pick up trash from the floor.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Wipe down surfaces with a damp cloth.",
+      "task_type": "cleaning"
+    },
+    {
+      "step": "Remove trash from the room.",
+      "task_type": "cleaning"
     }
   ],
   "corrections": [
@@ -1391,6 +1590,6 @@
   ],
   "meta": {
     "version": 1,
-    "last_updated": 1777159038.484275
+    "last_updated": 1777245494.2489402
   }
 }

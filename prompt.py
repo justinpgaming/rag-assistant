@@ -4,6 +4,33 @@
 
 from templates import TASK_TEMPLATES
 
+GLOBAL_PROMPT = """
+SYSTEM ARCHITECTURE RULES:
+
+1. MODE SEPARATION (STRICT)
+- Tool Mode executes structured actions only
+- Validator determines structural correctness only
+- Correction fixes ONLY validator-reported structural violations
+- Scoring evaluates quality only and must NOT influence correctness decisions
+
+2. AUTHORITY HIERARCHY
+- Validator is the only source of truth for structural validity
+- Scoring is observational only
+- Tool Mode does not validate correctness
+- Correction does not define rules, only repairs violations
+
+3. SHARED DEFINITIONS
+
+3.1 ACTION UNIT DEFINITION
+An "action" is:
+- one physical operation
+- applied to one primary object
+- expressed as a single executable step
+
+4. NON-OVERLAP RULE
+- No rule should be defined differently across modules
+"""
+
 FAST_PROMPT = """
 You are in FAST mode.
 
@@ -22,7 +49,7 @@ You are in THINK mode.
 """
 
 
-TOOL_PROMPT = """
+TOOL_PROMPT = GLOBAL_PROMPT + """
 You are in TOOL mode.
 
 FAILURE CONDITION:
@@ -110,9 +137,70 @@ DO NOT:
 """
 
 # =========================================
-# PROMPT BUILDER
+# PROMPT BUILDERS
 # =========================================
 
+# =========================================
+# CORRECTION PROMPT
+# =========================================
+
+
+def build_correction_prompt(step_text: str, reason: str):
+    return f"""
+{GLOBAL_PROMPT}
+
+Rewrite this step into a single, clear physical action.
+
+STRICT RULES (MUST FOLLOW):
+- Use EXACTLY ONE action verb
+- Allowed verbs: pick, place, wipe, vacuum, sweep, remove, put, return
+- Do NOT use more than one verb
+- Do NOT use the word "and"
+- Do NOT combine actions
+- Do NOT use weak verbs like: organize, tidy, straighten, arrange
+- Use a specific object (no "items", "things", "stuff")
+- The action must be physically doable in one motion
+- You must preserve the original meaning and object of the step
+- You must NOT simplify to generic actions unless required by rules
+- The corrected step must reflect the SAME task intent as the original
+
+When correcting:
+- If the original step contains multiple actions, reduce it to the FIRST atomic physical action only
+- Do NOT invent unrelated actions
+- Transform verbs to the closest allowed physical equivalent
+
+FORMAT RULES:
+- Output ONLY one sentence
+- No explanations
+- No labels like "Improved step"
+- No extra text
+
+BAD EXAMPLES (DO NOT DO):
+- "Pick up clothes and put them away"
+- "Straighten and arrange bedding"
+- "Organize items on the desk"
+
+GOOD EXAMPLES:
+BAD EXAMPLES (DO NOT DO):
+- "Pick up clothes and put them away"
+- "Straighten and arrange bedding"
+- "Organize items on the desk"
+- "Pick up clothes from the floor"  ← ✅
+- "Place books onto the bookshelf"  ← ✅
+- "Vacuum the carpet to remove dirt"  ← ✅
+
+Original step:
+{step_text}
+
+Reason it is bad:
+{reason}
+
+Corrected step:
+"""
+
+# ============================================
+# GENERAL PROMPT BUILDER
+3 ============================================
 
 def build_prompt(query, context, mode, task_type="general"):
     mode_map = {"fast": FAST_PROMPT, "think": THINK_PROMPT, "tool": TOOL_PROMPT}
